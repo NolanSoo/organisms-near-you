@@ -1,0 +1,143 @@
+html {
+  height: 105%; 
+  width: 105%;
+  overflow: auto;
+}
+/* 500 percent only for testing on mobile this is pc version */
+.b {
+  background-color: white;
+  font-family: "Kanit", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+  color: #222299;
+}
+.pad {
+  background-color: #222299;
+}
+.padleft {
+  background-color: #222299;
+}
+.box {
+      width: 53px;
+      height: 53px;
+      background-color: #22ee44;
+      border: 5px solid #222299;
+      margin: 10px;
+      padding: 15px;
+      display: inline-block;
+      border-radius: 53px;
+    }
+    .box2 {
+      width: 53px;
+      height: 53px;
+      background-color: #ee0033;
+      border: 5px solid #222299;
+      margin: 10px;
+      padding: 15px;
+      display: inline-block;
+      border-radius: 53px;
+    }
+.movie {
+  color: #8888ff
+}
+
+.aisle {
+  width: 53px;
+  height: 53px;
+  background-color: white;
+  display: inline-block;
+}
+.padleft {
+  padding-right: 30%;
+}
+.padright {
+  padding-left: 30%;
+}
+/* Add this rule to your CSS */
+* {
+  box-sizing: border-box; 
+}
+.c {
+  text-align: center;
+  color: #ee0033;
+  font-family: "Kanit", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+@media (max-width: 1200px) {
+  .box, .box2 {
+     width: 28px;
+      height: 28px;
+      margin: 5px;
+      padding: 7px;
+      display: inline-block;
+      border-radius: 28px;
+      max-width: 100%;
+      max-height: 100%;
+     }
+  .aisle {
+     width: 28px;
+      height: 28px;
+      margin: 5px;
+      padding: 7px;
+      display: inline-block;
+      border-radius: 28px;
+    max-width: 100%;
+    max-height: 100%;
+  }
+  html {
+    height: 105%; 
+    width: 1000px;
+    overflow: auto;
+  }
+}
+h1 {
+  font-size: 40pt;
+}
+h2 {
+  font-size: 27pt;
+}
+.modal {
+  display: block;
+  position: fixed; 
+  z-index: 1; 
+  left: 0;
+  top: 0;
+  width: 100%; 
+  height: 100%; 
+  overflow: auto; 
+  background-color: rgba(0,0,0,0.4); 
+}
+.modal-content {
+  background-color: #222299;
+  margin: 15% auto; 
+  padding: 20px;
+  border: 3px solid #ffffff;
+  width: 400px; 
+  border-radius: 50px;
+  color: white;
+  font-family: "Kanit", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+  }
+.Cancel {
+  color: white;
+  font-family: "Kanit", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+  background-color: #5e5b8b;
+  border: 3px solid #ffffff;
+  padding: 10px;
+  border-radius: 20px;
+  
+}
+.reserve {
+  color: white;
+  font-family: "Kanit", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+  background-color: #5b678b;
+  border: 3px solid #ffffff;
+  padding: 10px;
+  border-radius: 20px;
+}
