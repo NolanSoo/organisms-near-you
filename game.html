@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GeoGuessr-like Game</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link href="style.css" rel="stylesheet" type="text/css" />
+</head>
+<body class="light-theme">
+  <div class="controls">
+    <button id="startGame">Start Game</button>
+    <br>
+    <p id="timerDisplay" style="display: none;">Timer: 0</p>
+    <div id="imageContainer" style="display: none;"></div>
+    <div id="scoreDisplay"></div>
+  </div>
+  <div id="mapContainer" style="height: 60vh;"></div>
+  <!-- Loading Screen Element -->
+    <div id="loadingScreen">
+        <img src="loading.gif" alt="Loading...">
+    </div>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
