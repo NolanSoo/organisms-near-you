@@ -10,15 +10,10 @@ let personalBest = parseInt(localStorage.getItem('personalBest')) || 0;
 
 const searchRadiusMiles = 50;
 const searchRadiusKm = searchRadiusMiles * 1.60934;
+const latitudeRange = [-50, 60]; // Latitude range (50°S to 60°N)
+const longitudeRange = [-130, 160]; // Full longitude range
 
-const latitudeRangeGlobal = [-50, 60]; // Latitude range (50°S to 60°N)
-const longitudeRangeGlobal = [-180, 180]; // Full longitude range
-
-const latitudeRangeEurope = [37, 63]; // Latitude range for Europe
-const longitudeRangeEurope = [-10, 32]; // Longitude range for Europe
-
-document.getElementById('startGame').addEventListener('click', () => startGame('global'));
-document.getElementById('startEuropeGame').addEventListener('click', () => startGame('europe'));
+document.getElementById('startGame').addEventListener('click', startGame);
 
 function initializeMap() {
   console.log("Initializing map...");
@@ -32,7 +27,7 @@ function initializeMap() {
   console.log("Map initialized.");
 }
 
-function startGame(mode) {
+function startGame() {
   if (gameInProgress) {
     console.log("Game already in progress.");
     return;
@@ -45,20 +40,14 @@ function startGame(mode) {
   sessionScore = 0;
   updateScoreDisplay();
 
-  // Set the latitude and longitude ranges based on the selected mode
-  let latRange, lonRange;
-  if (mode === 'europe') {
-    latRange = latitudeRangeEurope;
-    lonRange = longitudeRangeEurope;
-  } else {
-    latRange = latitudeRangeGlobal;
-    lonRange = longitudeRangeGlobal;
-  }
+  // Hide loading screen and show game container
+  toggleLoadingScreen(false);
+  document.getElementById('imageContainer').style.display = 'block';
 
-  startNewRound(latRange, lonRange);
+  startNewRound();
 }
 
-function startNewRound(latRange, lonRange) {
+function startNewRound() {
   if (currentRound >= 4) {
     console.log("Ending game after 4 rounds.");
     endGame();
@@ -68,28 +57,26 @@ function startNewRound(latRange, lonRange) {
   console.log(`Starting round ${currentRound + 1}`);
   currentRound++;
   toggleLoadingScreen(true); // Show loading screen while searching for a location
-  findLocationWithPicture(latRange, lonRange);
+  findLocationWithPicture();
 }
 
-function findLocationWithPicture(latRange, lonRange) {
-  const baseLat = getRandomLatitude(latRange);
-  const baseLon = getRandomLongitude(lonRange);
+function findLocationWithPicture() {
+  const baseLat = getRandomLatitude();
+  const baseLon = getRandomLongitude();
 
   console.log(`Searching for location with coordinates around: ${baseLat}, ${baseLon}`);
 
-  const latMin = baseLat - 0.05;
-  const latMax = baseLat + 0.05;
-  const lonMin = baseLon - 0.05;
-  const lonMax = baseLon + 0.05;
+  const latRange = [baseLat - 0.05, baseLat + 0.05];
+  const lonRange = [baseLon - 0.05, baseLon + 0.05];
 
-  console.log(`Latitude range: ${latMin} to ${latMax}`);
-  console.log(`Longitude range: ${lonMin} to ${lonMax}`);
+  console.log(`Latitude range: ${latRange[0]} to ${latRange[1]}`);
+  console.log(`Longitude range: ${lonRange[0]} to ${lonRange[1]}`);
 
   if (userLocationMarker) {
     map.removeLayer(userLocationMarker);
   }
 
-  const url = `https://api.gbif.org/v1/occurrence/search?decimalLatitude=${latMin},${latMax}&decimalLongitude=${lonMin},${lonMax}&distance=${searchRadiusKm}&limit=1`;
+  const url = `https://api.gbif.org/v1/occurrence/search?decimalLatitude=${latRange[0]},${latRange[1]}&decimalLongitude=${lonRange[0]},${lonRange[1]}&distance=${searchRadiusKm}&limit=1`;
 
   fetch(url)
     .then(response => response.json())
@@ -107,7 +94,7 @@ function findLocationWithPicture(latRange, lonRange) {
         displayImage(correctLocation.media);
       } else {
         console.log("No valid results found. Retrying...");
-        setTimeout(() => findLocationWithPicture(latRange, lonRange), 0); // Retry immediately
+        setTimeout(findLocationWithPicture, 3000);
       }
     })
     .catch(error => console.error("Error fetching data:", error));
@@ -158,7 +145,7 @@ function handleMapClick(e) {
   if (currentRound >= 4) {
     endGame();
   } else {
-    document.getElementById('nextButton').style.display = 'block'; // Show "Next" button after each round
+    startNewRound();
   }
 }
 
@@ -187,12 +174,12 @@ function endGame() {
   alert(`Game Over! Your session score: ${Math.round(sessionScore)}. Click "Start New Game" to play again.`);
 }
 
-function getRandomLatitude(latRange) {
-  return Math.random() * (latRange[1] - latRange[0]) + latRange[0]; // Random latitude within specified range
+function getRandomLatitude() {
+  return Math.random() * (latitudeRange[1] - latitudeRange[0]) + latitudeRange[0]; // Latitude between 50°S and 60°N
 }
 
-function getRandomLongitude(lonRange) {
-  return Math.random() * (lonRange[1] - lonRange[0]) + lonRange[0]; // Random longitude within specified range
+function getRandomLongitude() {
+  return Math.random() * (longitudeRange[1] - longitudeRange[0]) + longitudeRange[0]; // Longitude between -180 and 180
 }
 
 function toggleLoadingScreen(show) {
@@ -204,10 +191,5 @@ function toggleLoadingScreen(show) {
     }
 }
 
-// Event listener for the "Next" button
-document.getElementById('nextButton').addEventListener('click', function() {
-    document.getElementById('nextButton').style.display = 'none'; // Hide the button
-    startNewRound(); // Start the next round
-});
 
 initializeMap();
