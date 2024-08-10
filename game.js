@@ -12,7 +12,13 @@ const searchRadiusMiles = 50;
 const searchRadiusKm = searchRadiusMiles * 1.60934;
 const latitudeRange = [-50, 60]; // Latitude range (50°S to 60°N)
 const longitudeRange = [-130, 160]; // Full longitude range
-
+document.getElementById('checkStatusButton').addEventListener('click', function() {
+  const isChecked = document.getElementById('europe').checked;
+  if isChecked {
+    const latitudeRange = [37, 63]; 
+    const longitudeRange = [-10, 31]; 
+  }
+});
 document.getElementById('startGame').addEventListener('click', startGame);
 
 function initializeMap() {
