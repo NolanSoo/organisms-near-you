@@ -12,13 +12,7 @@ const searchRadiusMiles = 50;
 const searchRadiusKm = searchRadiusMiles * 1.60934;
 const latitudeRange = [-50, 60]; // Latitude range (50°S to 60°N)
 const longitudeRange = [-130, 160]; // Full longitude range
-document.getElementById('checkStatusButton').addEventListener('click', function() {
-  const isChecked = document.getElementById('europe').checked;
-  if isChecked {
-    const latitudeRange = [37, 63]; 
-    const longitudeRange = [-10, 31]; 
-  }
-});
+
 document.getElementById('startGame').addEventListener('click', startGame);
 
 function initializeMap() {
@@ -67,9 +61,11 @@ function startNewRound() {
 }
 
 function findLocationWithPicture() {
-  const baseLat = getRandomLatitude();
-  const baseLon = getRandomLongitude();
-
+  const isEuropeMode = document.getElementById('europe').checked;
+  const latitudeRange = isEuropeMode ? [37, 63] : [-50, 60];
+  const longRange = isEuropeMode ? [-10, 32] : [-130, 160];
+  const baseLat = Math.random() * (latitudeRange[1] - latitudeRange[0]) + latitudeRange[0]; 
+  const baseLon = Math.random() * (longRange[1] - longRange[0]) + longRange[0]; // Latitude between 50°S and 60°N
   console.log(`Searching for location with coordinates around: ${baseLat}, ${baseLon}`);
 
   const latRange = [baseLat - 0.05, baseLat + 0.05];
@@ -178,14 +174,6 @@ function endGame() {
   }
   updateScoreDisplay();
   alert(`Game Over! Your session score: ${Math.round(sessionScore)}. Click "Start New Game" to play again.`);
-}
-
-function getRandomLatitude() {
-  return Math.random() * (latitudeRange[1] - latitudeRange[0]) + latitudeRange[0]; // Latitude between 50°S and 60°N
-}
-
-function getRandomLongitude() {
-  return Math.random() * (longitudeRange[1] - longitudeRange[0]) + longitudeRange[0]; // Longitude between -180 and 180
 }
 
 function toggleLoadingScreen(show) {
