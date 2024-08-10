@@ -63,7 +63,7 @@ function startNewRound() {
 function findLocationWithPicture() {
   const isEuropeMode = document.getElementById('europe').checked;
   const latitudeRange = isEuropeMode ? [37, 63] : [-50, 60];
-  const longRange = isEuropeMode ? [-10, 32] : [-130, 160];
+  const longRange = isEuropeMode ? [-10, 36] : [-130, 160];
   const baseLat = Math.random() * (latitudeRange[1] - latitudeRange[0]) + latitudeRange[0]; 
   const baseLon = Math.random() * (longRange[1] - longRange[0]) + longRange[0]; // Latitude between 50°S and 60°N
   console.log(`Searching for location with coordinates around: ${baseLat}, ${baseLon}`);
