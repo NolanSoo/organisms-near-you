@@ -201,27 +201,40 @@ async function fetchResults(lat = userLat, lon = userLon) {
 }
 
 // Generate random location within a specified radius
-function randomLocation() {
-  // Generate random offset in miles
-  const radiusInMiles = 50;
-  const randomDistance = Math.random() * radiusInMiles;
-  const randomAngle = Math.random() * 2 * Math.PI;
+// Generate random location within 40 miles radius and retry until results are found
+async function randomLocation() {
+  const radiusInMiles = 40; // Fixed radius
+  const latitudeRange = [-50, 60]; // Latitude range (50°S to 60°N)
+  const longRange = [-179.999, 179.999]; // Full longitude range
+  let resultsFound = false;
 
-  // Convert radius from miles to degrees
-  const milesToDegrees = 0.014;
-  const randomDistanceDegrees = randomDistance * milesToDegrees;
+  while (!resultsFound) {
+    try {
+      // Generate random base latitude and longitude within the specified ranges
+      const baseLat = Math.random() * (latitudeRange[1] - latitudeRange[0]) + latitudeRange[0];
+      const baseLon = Math.random() * (longRange[1] - longRange[0]) + longRange[0];
 
-  // Calculate offset
-  const offsetLat = randomDistanceDegrees * Math.cos(randomAngle);
-  const offsetLon = randomDistanceDegrees * Math.sin(randomAngle);
+      // Define search range around the base latitude and longitude
+      const latMin = Math.max(-90, baseLat - radiusInMiles * 0.014);
+      const latMax = Math.min(90, baseLat + radiusInMiles * 0.014);
+      const lonMin = Math.max(-180, baseLon - radiusInMiles * 0.014);
+      const lonMax = Math.min(180, baseLon + radiusInMiles * 0.014);
 
-  // Generate random location
-  const randomLat = userLat + offsetLat;
-  const randomLon = userLon + offsetLon;
-
-  // Fetch results based on random location
-  fetchResults(randomLat, randomLon);
+      console.log(`Searching for location with coordinates around: ${baseLat}, ${baseLon}`);
+      
+      // Attempt to fetch results using the calculated latitude and longitude range
+      resultsFound = await fetchResults(latMin, latMax, lonMin, lonMax);
+      
+      if (resultsFound) {
+        console.log('Results found at random location.');
+      }
+    } catch (error) {
+      console.error('Error fetching results for random location:', error);
+    }
+  }
 }
+
+
 
 // Update map based on selected address or random location
 function updateMap() {
