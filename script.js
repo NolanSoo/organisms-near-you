@@ -81,15 +81,15 @@ async function getCommonNameAndKingdom(taxonKey) {
 }
 async function fetchResultsForRandomLocation(lat, lon) {
   fetchStartTime = Date.now();
-  const distance = 50; // Fixed radius of 50 miles for random location
+  const distance = 80; // Fixed radius of 80 miles for random location
   const resultsCount = parseInt(document.getElementById('results').value) || 10;
   const kingdomFilter = document.getElementById('kingdomFilter').value;
 
   const milesToDegrees = 0.014;
   const distanceDegrees = distance * milesToDegrees;
 
-  const latMin = Math.max(-90, lat - distanceDegrees);
-  const latMax = Math.min(90, lat + distanceDegrees);
+  const latMin = Math.max(-60, lat - distanceDegrees);
+  const latMax = Math.min(55, lat + distanceDegrees);
   const lonMin = Math.max(-180, lon - distanceDegrees);
   const lonMax = Math.min(180, lon + distanceDegrees);
 
