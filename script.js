@@ -92,9 +92,6 @@ async function fetchResults(lat = userLat, lon = userLon) {
   const kilometersToDegrees = 0.008;
   let distanceDegrees = distanceUnit === 'miles' ? distance * milesToDegrees : distance * kilometersToDegrees;
 
-  // Use a 50-mile radius if no distance is set or if it's smaller than 50 miles
-  distanceDegrees = Math.max(distanceDegrees, 50 * milesToDegrees);
-
   const latMin = lat - distanceDegrees;
   const latMax = lat + distanceDegrees;
   const lonMin = lon - distanceDegrees;
