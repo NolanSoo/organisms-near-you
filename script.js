@@ -364,7 +364,35 @@ async function fetchResults(lat = userLat, lon = userLon) {
         marker.addTo(map);
     });
 }
+// Function to generate random location and fetch results
+async function randomLocation() {
+  const radiusInMiles = 50; // Fixed radius for random location
+  const latitudeRange = [-50, 60]; // Latitude range (50°S to 60°N)
+  const longRange = [-179.999, 179.999]; // Full longitude range
+  let resultsFound = false;
 
+  while (!resultsFound) {
+    try {
+      // Generate random base latitude and longitude within the specified ranges
+      const baseLat = Math.random() * (latitudeRange[1] - latitudeRange[0]) + latitudeRange[0];
+      const baseLon = Math.random() * (longRange[1] - longRange[0]) + longRange[0];
+
+      console.log(`Searching for location with coordinates around: ${baseLat}, ${baseLon}`);
+
+      // Attempt to fetch results using the generated coordinates
+      resultsFound = await fetchResultsForRandomLocation(baseLat, baseLon);
+      
+      if (resultsFound) {
+        console.log('Results found at random location.');
+      } else {
+        console.log('No results found. Trying again...');
+      }
+    } catch (error) {
+      console.error('Error fetching results for random location:', error);
+      // Handle the error if necessary
+    }
+  }
+}
 
 
 
