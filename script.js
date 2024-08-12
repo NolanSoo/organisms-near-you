@@ -273,4 +273,3 @@ document.getElementById('startButton').addEventListener('click', function() {
 document.getElementById('themeButton').addEventListener('click', function() {
   toggleTheme();
 });
-
