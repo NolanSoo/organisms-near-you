@@ -54,9 +54,9 @@ function initializeMap(lat, lon) {
 // Fetch common name and kingdom for a given taxonKey
 async function getCommonNameAndKingdom(taxonKey) {
   try {
-    const response = await fetch(https://api.gbif.org/v1/species/${taxonKey});
+    const response = await fetch(`https://api.gbif.org/v1/species/${taxonKey}`);
     const speciesData = await response.json();
-    const vernacularNamesResponse = await fetch(https://api.gbif.org/v1/species/${taxonKey}/vernacularNames);
+    const vernacularNamesResponse = await fetch(`https://api.gbif.org/v1/species/${taxonKey}/vernacularNames`);
     const vernacularNamesData = await vernacularNamesResponse.json();
 
     let commonName = 'No common name available';
@@ -79,20 +79,6 @@ async function getCommonNameAndKingdom(taxonKey) {
     };
   }
 }
-async function getWikipediaInfo(commonName) {
-  try {
-    const response = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(commonName)}`);
-    const data = await response.json();
-    return {
-      snippet: data.extract || '',
-      wikiLink: data.content_urls?.desktop?.page || ''
-    };
-  } catch (error) {
-    console.error('Error fetching Wikipedia info:', error);
-    return { snippet: '', wikiLink: '' };
-  }
-}
-
 async function fetchResultsForRandomLocation(lat, lon) {
   fetchStartTime = Date.now();
   const distance = 80; // Fixed radius of 80 miles for random location
@@ -133,8 +119,7 @@ async function fetchResultsForRandomLocation(lat, lon) {
     const data = await response.json();
     const fetchDetailsPromises = data.results.map(async occurrence => {
       const details = await getCommonNameAndKingdom(occurrence.taxonKey);
-      const wikiInfo = await getWikipediaInfo(details.commonName);
-      return { occurrence, ...details, ...wikiInfo };
+      return { occurrence, ...details };
     });
 
     const results = await Promise.all(fetchDetailsPromises);
@@ -174,7 +159,7 @@ async function fetchResultsForRandomLocation(lat, lon) {
 
   occurrences.sort((a, b) => a.occurrence.distance - b.occurrence.distance);
 
-  occurrences.forEach(({ occurrence, commonName, snippet, wikiLink }) => {
+  occurrences.forEach(({ occurrence, commonName }) => {
     const occurrenceDiv = document.createElement('div');
     occurrenceDiv.className = 'occurrence';
 
@@ -183,25 +168,23 @@ async function fetchResultsForRandomLocation(lat, lon) {
     const distanceInKm = (occurrence.distance / 1000).toFixed(2);
     const distanceInMiles = (occurrence.distance / 1609.34).toFixed(2);
 
-    occurrenceDiv.innerHTML = 
-      `<strong>${commonName}</strong><br>
+    occurrenceDiv.innerHTML = `
+      <strong>${commonName}</strong><br>
       <em>${occurrence.scientificName}</em><br>
       <strong>Locality:</strong> ${locality}<br>
       <strong>Distance:</strong> ${distanceInKm} km / ${distanceInMiles} miles<br>
       ${speciesImage ? `<img src="${speciesImage}" alt="${commonName}" class="species-image">` : ''}
-      ${snippet ? `<p>${snippet}</p>` : ''}
-      ${wikiLink ? `<a href="${wikiLink}" target="_blank">Read more on Wikipedia</a>` : ''}`;
+    `;
 
     listContainer.appendChild(occurrenceDiv);
 
-    const markerPopupContent = 
-      `<strong>${commonName}</strong><br>
+    const markerPopupContent = `
+      <strong>${commonName}</strong><br>
       <em>${occurrence.scientificName}</em><br>
       <strong>Locality:</strong> ${locality}<br>
       <strong>Distance:</strong> ${distanceInKm} km / ${distanceInMiles} miles<br>
       ${speciesImage ? `<img src="${speciesImage}" alt="${commonName}" class="species-image">` : ''}
-      ${snippet ? `<p>${snippet}</p>` : ''}
-      ${wikiLink ? `<a href="${wikiLink}" target="_blank">Read more on Wikipedia</a>` : ''}`;
+    `;
 
     const marker = L.marker([occurrence.decimalLatitude, occurrence.decimalLongitude])
       .bindPopup(markerPopupContent);
@@ -212,7 +195,7 @@ async function fetchResultsForRandomLocation(lat, lon) {
   return true; // Indicate that results were found
 }
 
-
+// Fetch results based on provided coordinates
 async function fetchResults(lat = userLat, lon = userLon) {
   fetchStartTime = Date.now();
   let distance = parseFloat(document.getElementById('distance').value) || 10;
@@ -255,8 +238,7 @@ async function fetchResults(lat = userLat, lon = userLon) {
     const data = await response.json();
     const fetchDetailsPromises = data.results.map(async occurrence => {
       const details = await getCommonNameAndKingdom(occurrence.taxonKey);
-      const wikiInfo = await getWikipediaInfo(details.commonName);
-      return { occurrence, ...details, ...wikiInfo };
+      return { occurrence, ...details };
     });
 
     const results = await Promise.all(fetchDetailsPromises);
@@ -296,7 +278,7 @@ async function fetchResults(lat = userLat, lon = userLon) {
 
   occurrences.sort((a, b) => a.occurrence.distance - b.occurrence.distance);
 
-  occurrences.forEach(({ occurrence, commonName, snippet, wikiLink }) => {
+  occurrences.forEach(({ occurrence, commonName }) => {
     const occurrenceDiv = document.createElement('div');
     occurrenceDiv.className = 'occurrence';
 
@@ -305,25 +287,23 @@ async function fetchResults(lat = userLat, lon = userLon) {
     const distanceInKm = (occurrence.distance / 1000).toFixed(2);
     const distanceInMiles = (occurrence.distance / 1609.34).toFixed(2);
 
-    occurrenceDiv.innerHTML = 
-      `<strong>${commonName}</strong><br>
+    occurrenceDiv.innerHTML = `
+      <strong>${commonName}</strong><br>
       <em>${occurrence.scientificName}</em><br>
       <strong>Locality:</strong> ${locality}<br>
       <strong>Distance:</strong> ${distanceInKm} km / ${distanceInMiles} miles<br>
       ${speciesImage ? `<img src="${speciesImage}" alt="${commonName}" class="species-image">` : ''}
-      ${snippet ? `<p>${snippet}</p>` : ''}
-      ${wikiLink ? `<a href="${wikiLink}" target="_blank">Read more on Wikipedia</a>` : ''}`;
+    `;
 
     listContainer.appendChild(occurrenceDiv);
 
-    const markerPopupContent = 
-      `<strong>${commonName}</strong><br>
+    const markerPopupContent = `
+      <strong>${commonName}</strong><br>
       <em>${occurrence.scientificName}</em><br>
       <strong>Locality:</strong> ${locality}<br>
       <strong>Distance:</strong> ${distanceInKm} km / ${distanceInMiles} miles<br>
       ${speciesImage ? `<img src="${speciesImage}" alt="${commonName}" class="species-image">` : ''}
-      ${snippet ? `<p>${snippet}</p>` : ''}
-      ${wikiLink ? `<a href="${wikiLink}" target="_blank">Read more on Wikipedia</a>` : ''}`;
+    `;
 
     const marker = L.marker([occurrence.decimalLatitude, occurrence.decimalLongitude])
       .bindPopup(markerPopupContent);
@@ -346,7 +326,7 @@ async function randomLocation() {
       const baseLat = Math.random() * (latitudeRange[1] - latitudeRange[0]) + latitudeRange[0];
       const baseLon = Math.random() * (longRange[1] - longRange[0]) + longRange[0];
 
-      console.log(Searching for location with coordinates around: ${baseLat}, ${baseLon});
+      console.log(`Searching for location with coordinates around: ${baseLat}, ${baseLon}`);
 
       // Attempt to fetch results using the generated coordinates
       resultsFound = await fetchResultsForRandomLocation(baseLat, baseLon);
