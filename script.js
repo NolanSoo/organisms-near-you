@@ -35,6 +35,9 @@ function initializeMap(lat, lon) {
     attribution: '&copy; OpenStreetMap contributors'
   }).addTo(map);
 
+
+  
+
   currentLocationMarker = L.marker([lat, lon], {
     color: 'red',
     title: 'Your Location'
@@ -208,7 +211,6 @@ async function fetchResultsForRandomLocation(lat, lon) {
             <em>${occurrence.scientificName}</em><br>
             <strong>Locality:</strong> ${locality}<br>
             <strong>Distance:</strong> ${distanceInKm} km / ${distanceInMiles} miles<br>
-            <a href="${link}" target="_blank">More Info</a><br>
             <a href="${wikiLink}" target="_blank">Wikipedia</a><br>
             ${snippetHtml}
             ${speciesImage ? `<img src="${speciesImage}" alt="${commonName}" class="species-image">` : ''}
@@ -221,7 +223,6 @@ async function fetchResultsForRandomLocation(lat, lon) {
             <em>${occurrence.scientificName}</em><br>
             <strong>Locality:</strong> ${locality}<br>
             <strong>Distance:</strong> ${distanceInKm} km / ${distanceInMiles} miles<br>
-            <a href="${link}" target="_blank">More Info</a><br>
             <a href="${wikiLink}" target="_blank">Wikipedia</a><br>
             ${snippetHtml}
             ${speciesImage ? `<img src="${speciesImage}" alt="${commonName}" class="species-image">` : ''}
@@ -340,7 +341,6 @@ async function fetchResults(lat = userLat, lon = userLon) {
             <em>${occurrence.scientificName}</em><br>
             <strong>Locality:</strong> ${locality}<br>
             <strong>Distance:</strong> ${distanceInKm} km / ${distanceInMiles} miles<br>
-            <a href="${link}" target="_blank">More Info</a><br>
             <a href="${wikiLink}" target="_blank">Wikipedia</a><br>
             ${snippetHtml}
             ${speciesImage ? `<img src="${speciesImage}" alt="${commonName}" class="species-image">` : ''}
@@ -353,7 +353,6 @@ async function fetchResults(lat = userLat, lon = userLon) {
             <em>${occurrence.scientificName}</em><br>
             <strong>Locality:</strong> ${locality}<br>
             <strong>Distance:</strong> ${distanceInKm} km / ${distanceInMiles} miles<br>
-            <a href="${link}" target="_blank">More Info</a><br>
             <a href="${wikiLink}" target="_blank">Wikipedia</a><br>
             ${snippetHtml}
             ${speciesImage ? `<img src="${speciesImage}" alt="${commonName}" class="species-image">` : ''}
