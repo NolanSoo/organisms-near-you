@@ -45,10 +45,17 @@ function initializeMap(lat, lon) {
       map.removeLayer(addressMarker);
     }
     addressMarker = L.marker(e.latlng, { color: 'blue', title: 'Selected Location' }).addTo(map);
-    updateMap();
+    updateMap(); // Ensure this function is defined
   });
 
-  updateMap();
+  // Ensure updateMap is defined before calling
+  function updateMap() {
+    if (addressMarker) {
+      userLat = addressMarker.getLatLng().lat;
+      userLon = addressMarker.getLatLng().lng;
+    }
+    fetchResults(userLat, userLon);
+  }
 }
 
 // Fetch common name and kingdom for a given taxonKey
@@ -82,10 +89,6 @@ async function getCommonNameAndKingdom(taxonKey) {
 
 // Function to fetch Wikipedia snippet for a given common name
 async function fetchWikipediaSnippet(commonName) {
-  if (commonName === 'No common name available') {
-    return { link: '#' };
-  }
-
   const url = `https://en.wikipedia.org/w/api.php?action=query&format=json&list=search&formatversion=2&srsearch=${encodeURIComponent(commonName)}&srlimit=1&origin=*`;
 
   try {
@@ -97,15 +100,17 @@ async function fetchWikipediaSnippet(commonName) {
 
     if (data.query.search.length > 0) {
       const page = data.query.search[0];
+      const snippet = page.snippet; // Get the HTML snippet
       const pageId = page.pageid;
       const wikiLink = `https://en.wikipedia.org/?curid=${pageId}`;
-      return { link: wikiLink };
+
+      return { snippet, link: wikiLink };
     } else {
-      return { link: '#' };
+      return { snippet: 'No snippet available', link: '#' };
     }
   } catch (error) {
     console.error('Error fetching Wikipedia snippet:', error);
-    return { link: '#' };
+    return { snippet: 'Error fetching snippet', link: '#' };
   }
 }
 
@@ -201,75 +206,50 @@ async function fetchResultsForRandomLocation(lat, lon) {
     const link = occurrence.references && occurrence.references.length > 0 ? occurrence.references[0] : '#';
 
     // Fetch Wikipedia snippet
-    const { link: wikiLink } = await fetchWikipediaSnippet(commonName);
+    const { snippet, link: wikiLink } = await fetchWikipediaSnippet(commonName);
 
-    const snippetHtml = commonName === 'No common name available' ? '' : `<a href="${wikiLink}" target="_blank">${commonName}</a>`;
+    const snippetHtml = commonName === 'No common name available' ? '' : `<a href="${wikiLink}" target="_blank">${snippet}</a>`;
 
     occurrenceDiv.innerHTML = `
-      <strong>${commonName === 'No common name available' ? 'N/A' : commonName}</strong><br>
+      <strong>${commonName}</strong><br>
       <em>${occurrence.scientificName}</em><br>
       <strong>Locality:</strong> ${locality}<br>
-      <strong>Distance:</strong> ${distanceInKm} km / ${distanceInMiles} miles<br>
-      <a href="${link}" target="_blank">More Info</a><br>
+      <strong>Distance:</strong> ${distanceInMiles} miles (${distanceInKm} km)<br>
+      <img src="${speciesImage}" alt="Image of ${commonName}" width="100" /><br>
       ${snippetHtml}
-      ${speciesImage ? `<img src="${speciesImage}" alt="${commonName}" class="species-image">` : ''}
     `;
 
     listContainer.appendChild(occurrenceDiv);
 
-    const markerPopupContent = `
-      <strong>${commonName === 'No common name available' ? 'N/A' : commonName}</strong><br>
-      <em>${occurrence.scientificName}</em><br>
-      <strong>Locality:</strong> ${locality}<br>
-      <strong>Distance:</strong> ${distanceInKm} km / ${distanceInMiles} miles<br>
-      <a href="${link}" target="_blank">More Info</a><br>
-      ${snippetHtml}
-      ${speciesImage ? `<img src="${speciesImage}" alt="${commonName}" class="species-image">` : ''}
-    `;
-
-    const marker = L.marker([occurrence.decimalLatitude, occurrence.decimalLongitude])
-      .bindPopup(markerPopupContent)
-      .addTo(map);
+    const marker = L.marker([occurrence.decimalLatitude, occurrence.decimalLongitude], {
+      icon: L.icon({ iconUrl: 'marker-icon.png', iconSize: [25, 41] })
+    }).addTo(map);
 
     markers.push(marker);
   });
+
+  return true;
 }
 
-// Function to generate a random location within the given radius
-function randomLocation(lat, lon, radius = 80) {
-  const randomRadius = radius * Math.random();
-  const randomAngle = 2 * Math.PI * Math.random();
-  const earthRadius = 6371; // Earth's radius in kilometers
-  const latRadians = lat * Math.PI / 180;
-  const lonRadians = lon * Math.PI / 180;
-  
-  const newLat = lat + (randomRadius / earthRadius) * (180 / Math.PI);
-  const newLon = lon + (randomRadius / earthRadius) * (180 / Math.PI) / Math.cos(latRadians);
-  
-  return {
-    lat: newLat,
-    lon: newLon
-  };
-}
+// Add event listeners after DOM has loaded
+document.addEventListener('DOMContentLoaded', () => {
+  const startButton = document.getElementById('startButton');
+  const themeButton = document.getElementById('themeButton');
 
-// Generate a random location and fetch results
-function fetchResultsForRandomLocation() {
-  const randomLoc = randomLocation(userLat, userLon, 80);
-  fetchResultsForRandomLocation(randomLoc.lat, randomLoc.lon);
-}
+  if (startButton) {
+    startButton.addEventListener('click', () => {
+      if (addressMarker) {
+        fetchResultsForRandomLocation(userLat, userLon);
+      } else {
+        alert('Please select a location on the map.');
+      }
+    });
+  }
 
-// Toggle the theme
-function toggleTheme() {
-  document.body.classList.remove(themes[currentThemeIndex]);
-  currentThemeIndex = (currentThemeIndex + 1) % themes.length;
-  document.body.classList.add(themes[currentThemeIndex]);
-}
-
-// Set event listeners for buttons
-document.getElementById('startButton').addEventListener('click', function() {
-  fetchResultsForRandomLocation();
-});
-
-document.getElementById('themeButton').addEventListener('click', function() {
-  toggleTheme();
+  if (themeButton) {
+    themeButton.addEventListener('click', () => {
+      currentThemeIndex = (currentThemeIndex + 1) % themes.length;
+      document.body.className = themes[currentThemeIndex];
+    });
+  }
 });
