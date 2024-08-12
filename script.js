@@ -79,6 +79,30 @@ async function getCommonNameAndKingdom(taxonKey) {
     };
   }
 }
+// Function to fetch Wikipedia snippet for a given common name
+async function fetchWikipediaSnippet(commonName) {
+    const url = `http://en.wikipedia.org/w/api.php?action=query&format=json&list=search&formatversion=2&srsearch=${encodeURIComponent(commonName)}&srlimit=1`;
+
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data.query.search.length > 0) {
+            const page = data.query.search[0];
+            const snippet = page.snippet; // Get the HTML snippet
+            const pageId = page.pageid;
+            const wikiLink = `https://en.wikipedia.org/?curid=${pageId}`;
+
+            return { snippet, link: wikiLink };
+        } else {
+            return { snippet: 'No snippet available', link: '#' };
+        }
+    } catch (error) {
+        console.error('Error fetching Wikipedia snippet:', error);
+        return { snippet: 'Error fetching snippet', link: '#' };
+    }
+}
+
 // Function to fetch results for a random location
 async function fetchResultsForRandomLocation(lat, lon) {
     fetchStartTime = Date.now();
