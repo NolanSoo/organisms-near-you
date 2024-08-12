@@ -60,6 +60,15 @@ body.green-theme {
   background-color: #e6ffe6;
   color: #003300;
 }
+/* Alternate Theme */
+body.alt-theme {
+  background-color: #e0004f;
+  color: #036063;
+}
+body.alt-theme2 {
+  background-color: #34344A;
+  color: #ffffff;
+}
 /* Two columns for computers */
 @media (min-width: 769px) {
   #listContainer {
