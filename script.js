@@ -80,11 +80,15 @@ async function getCommonNameAndKingdom(taxonKey) {
   }
 }
 // Function to fetch Wikipedia snippet for a given common name
+// Function to fetch Wikipedia snippet for a given common name
 async function fetchWikipediaSnippet(commonName) {
-    const url = `http://en.wikipedia.org/w/api.php?action=query&format=json&list=search&formatversion=2&srsearch=${encodeURIComponent(commonName)}&srlimit=1`;
+    const url = `https://en.wikipedia.org/w/api.php?action=query&format=json&list=search&formatversion=2&srsearch=${encodeURIComponent(commonName)}&srlimit=1&origin=*`;
 
     try {
         const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
         const data = await response.json();
 
         if (data.query.search.length > 0) {
