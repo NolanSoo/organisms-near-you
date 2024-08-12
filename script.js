@@ -35,9 +35,6 @@ function initializeMap(lat, lon) {
     attribution: '&copy; OpenStreetMap contributors'
   }).addTo(map);
 
-
-  
-
   currentLocationMarker = L.marker([lat, lon], {
     color: 'red',
     title: 'Your Location'
@@ -82,7 +79,7 @@ async function getCommonNameAndKingdom(taxonKey) {
     };
   }
 }
-// Function to fetch Wikipedia snippet for a given common name
+
 // Function to fetch Wikipedia snippet for a given common name
 async function fetchWikipediaSnippet(commonName) {
     const url = `https://en.wikipedia.org/w/api.php?action=query&format=json&list=search&formatversion=2&srsearch=${encodeURIComponent(commonName)}&srlimit=1&origin=*`;
@@ -229,158 +226,48 @@ async function fetchResultsForRandomLocation(lat, lon) {
         `;
 
         const marker = L.marker([occurrence.decimalLatitude, occurrence.decimalLongitude])
-            .bindPopup(markerPopupContent);
+            .bindPopup(markerPopupContent)
+            .addTo(map);
+        
         markers.push(marker);
-        marker.addTo(map);
-    });
-
-    return true; // Indicate that results were found
-}
-
-// Function to fetch results based on provided coordinates
-// Function to fetch results based on provided coordinates
-async function fetchResults(lat = userLat, lon = userLon) {
-    fetchStartTime = Date.now();
-    let distance = parseFloat(document.getElementById('distance').value) || 10;
-    const distanceUnit = document.getElementById('distanceUnit').value;
-    const resultsCount = parseInt(document.getElementById('results').value) || 10;
-    const kingdomFilter = document.getElementById('kingdomFilter').value;
-
-    const milesToDegrees = 0.014;
-    const kilometersToDegrees = 0.008;
-    let distanceDegrees = distanceUnit === 'miles' ? distance * milesToDegrees : distance * kilometersToDegrees;
-
-    const latMin = lat - distanceDegrees;
-    const latMax = lat + distanceDegrees;
-    const lonMin = lon - distanceDegrees;
-    const lonMax = lon + distanceDegrees;
-
-    let gbifUrl = `https://api.gbif.org/v1/occurrence/search?year=2018,2024&decimalLatitude=${latMin},${latMax}&decimalLongitude=${lonMin},${lonMax}&limit=${resultsCount}`;
-
-    const listContainer = document.getElementById('listContainer');
-    listContainer.innerHTML = '';
-
-    markers.forEach(marker => map.removeLayer(marker));
-    markers = [];
-
-    let occurrences = [];
-    let additionalFetches = 0;
-
-    // Clear previous timeout
-    if (timeoutHandle) {
-        clearTimeout(timeoutHandle);
-    }
-
-    // Set timeout for the fetching process
-    timeoutHandle = setTimeout(() => {
-        listContainer.innerHTML = '<p style="color: red;">Error: The search is taking too long. Please try again with different filters or fewer results.</p>';
-    }, 100000); // 100 seconds
-
-    while ((occurrences.length < resultsCount) && (additionalFetches < 10)) {
-        const response = await fetch(gbifUrl);
-        const data = await response.json();
-        const fetchDetailsPromises = data.results.map(async occurrence => {
-            const details = await getCommonNameAndKingdom(occurrence.taxonKey);
-            return { occurrence, ...details };
-        });
-
-        const results = await Promise.all(fetchDetailsPromises);
-
-        const filteredResults = results.filter(({ occurrence, kingdom }) => {
-            return (kingdomFilter === 'all' || kingdom === kingdomFilter) &&
-                   (occurrence.media && occurrence.media.length > 0);
-        });
-
-        occurrences = occurrences.concat(filteredResults);
-
-        if (occurrences.length < resultsCount) {
-            additionalFetches++;
-            gbifUrl = `https://api.gbif.org/v1/occurrence/search?year=2018,2024&decimalLatitude=${latMin},${latMax}&decimalLongitude=${lonMin},${lonMax}&limit=${resultsCount}&offset=${data.offset + data.limit * additionalFetches}`;
-        }
-
-        if (Date.now() - fetchStartTime > 100000) {
-            listContainer.innerHTML = '<p style="color: red;">Error: The search is taking too long. Please try again with different filters or fewer results.</p>';
-            return;
-        }
-    }
-
-    clearTimeout(timeoutHandle); // Clear timeout if results are fetched in time
-
-    if (occurrences.length === 0) {
-        listContainer.innerHTML = '<p style="color: red;">No results found. Please adjust your filters.</p>';
-        return;
-    }
-
-    // Calculate distance from requested location
-    const requestedLatLng = L.latLng(lat, lon);
-
-    occurrences.forEach(({ occurrence }) => {
-        const occurrenceLatLng = L.latLng(occurrence.decimalLatitude, occurrence.decimalLongitude);
-        occurrence.distance = requestedLatLng.distanceTo(occurrenceLatLng);
-    });
-
-    occurrences.sort((a, b) => a.occurrence.distance - b.occurrence.distance);
-
-    occurrences.forEach(async ({ occurrence, commonName }) => {
-        const occurrenceDiv = document.createElement('div');
-        occurrenceDiv.className = 'occurrence';
-
-        const speciesImage = occurrence.media && occurrence.media.length > 0 ? occurrence.media[0].identifier : '';
-        const locality = occurrence.verbatimLocality || occurrence.locality || 'Locality not available';
-        const distanceInKm = (occurrence.distance / 1000).toFixed(2);
-        const distanceInMiles = (occurrence.distance / 1609.34).toFixed(2);
-        const link = occurrence.references && occurrence.references.length > 0 ? occurrence.references[0] : '#';
-
-        // Fetch Wikipedia snippet
-        const { snippet, link: wikiLink } = await fetchWikipediaSnippet(commonName);
-
-        const snippetHtml = `<div>${snippet}</div>`;
-
-        occurrenceDiv.innerHTML = `
-            <strong>${commonName}</strong><br>
-            <em>${occurrence.scientificName}</em><br>
-            <strong>Locality:</strong> ${locality}<br>
-            <strong>Distance:</strong> ${distanceInKm} km / ${distanceInMiles} miles<br>
-            <a href="${wikiLink}" target="_blank">Wikipedia</a><br>
-            ${snippetHtml}
-            ${speciesImage ? `<img src="${speciesImage}" alt="${commonName}" class="species-image">` : ''}
-        `;
-
-        listContainer.appendChild(occurrenceDiv);
-
-        const markerPopupContent = `
-            <strong>${commonName}</strong><br>
-            <em>${occurrence.scientificName}</em><br>
-            <strong>Locality:</strong> ${locality}<br>
-            <strong>Distance:</strong> ${distanceInKm} km / ${distanceInMiles} miles<br>
-            <a href="${wikiLink}" target="_blank">Wikipedia</a><br>
-            ${snippetHtml}
-            ${speciesImage ? `<img src="${speciesImage}" alt="${commonName}" class="species-image">` : ''}
-        `;
-
-        const marker = L.marker([occurrence.decimalLatitude, occurrence.decimalLongitude])
-            .bindPopup(markerPopupContent);
-        markers.push(marker);
-        marker.addTo(map);
     });
 }
 
-
-
-
-// Update map based on selected address or random location
-function updateMap() {
-  if (addressMarker) {
-    userLat = addressMarker.getLatLng().lat;
-    userLon = addressMarker.getLatLng().lng;
-  }
-  fetchResults(userLat, userLon);
+// Function to generate a random location within the given radius
+function randomLocation(lat, lon, radius = 80) {
+  const randomRadius = radius * Math.random();
+  const randomAngle = 2 * Math.PI * Math.random();
+  const earthRadius = 6371; // Earth's radius in kilometers
+  const latRadians = lat * Math.PI / 180;
+  const lonRadians = lon * Math.PI / 180;
+  
+  const newLat = lat + (randomRadius / earthRadius) * (180 / Math.PI);
+  const newLon = lon + (randomRadius / earthRadius) * (180 / Math.PI) / Math.cos(latRadians);
+  
+  return {
+    lat: newLat,
+    lon: newLon
+  };
 }
 
-// Change the theme of the application
-function changeTheme() {
-  const body = document.body;
-  body.classList.remove(themes[currentThemeIndex]);
+// Generate a random location and fetch results
+function fetchResultsForRandomLocation() {
+  const randomLoc = randomLocation(userLat, userLon, 80);
+  fetchResultsForRandomLocation(randomLoc.lat, randomLoc.lon);
+}
+
+// Toggle the theme
+function toggleTheme() {
+  document.body.classList.remove(themes[currentThemeIndex]);
   currentThemeIndex = (currentThemeIndex + 1) % themes.length;
-  body.classList.add(themes[currentThemeIndex]);
+  document.body.classList.add(themes[currentThemeIndex]);
 }
+
+// Set event listeners for buttons
+document.getElementById('startButton').addEventListener('click', function() {
+  fetchResultsForRandomLocation();
+});
+
+document.getElementById('themeButton').addEventListener('click', function() {
+  toggleTheme();
+});
