@@ -4,7 +4,7 @@ let markers = [];
 let currentLocationMarker;
 let addressMarker;
 let currentThemeIndex = 0;
-const themes = ['light-theme', 'dark-theme', 'green-theme'];
+const themes = ['light-theme', 'dark-theme', 'green-theme', 'alt-theme', 'alt-theme2'];
 let fetchStartTime;
 let timeoutHandle;
 
