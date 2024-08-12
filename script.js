@@ -371,6 +371,12 @@ async function randomLocation() {
   const longRange = [-179.999, 179.999]; // Full longitude range
   let resultsFound = false;
 
+  // Clear previous results
+  const listContainer = document.getElementById('listContainer');
+  listContainer.innerHTML = ''; // Clear results
+  markers.forEach(marker => map.removeLayer(marker)); // Remove previous markers
+  markers = []; // Reset markers array
+
   while (!resultsFound) {
     try {
       // Generate random base latitude and longitude within the specified ranges
@@ -393,6 +399,7 @@ async function randomLocation() {
     }
   }
 }
+
 
 
 
