@@ -109,6 +109,31 @@ async function fetchWikipediaSnippet(commonName) {
         return { snippet: 'Error fetching snippet', link: '#' };
     }
 }
+async function fetchWikipediaSnippet2(occurence.scientificName) {
+    const url = `https://en.wikipedia.org/w/api.php?action=query&format=json&list=search&formatversion=2&srsearch=${encodeURIComponent(occurence.scientificName)}&srlimit=1&origin=*`;
+
+    try {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+
+        if (data.query.search.length > 0) {
+            const page = data.query.search[0];
+            const snippet = page.snippet; // Get the HTML snippet
+            const pageId = page.pageid;
+            const wikiLink = `https://en.wikipedia.org/?curid=${pageId}`;
+
+            return { snippet, link: wikiLink };
+        } else {
+            return { snippet: 'No snippet available', link: '#' };
+        }
+    } catch (error) {
+        console.error('Error fetching Wikipedia snippet:', error);
+        return { snippet: 'Error fetching snippet', link: '#' };
+    }
+}
 
 // Function to fetch results for a random location
 async function fetchResultsForRandomLocation(lat, lon) {
@@ -206,7 +231,7 @@ async function fetchResultsForRandomLocation(lat, lon) {
 
     if (commonName == "No common name available") {
         // Use scientific name if commonName is not available
-        const result = await fetchWikipediaSnippet(occurrence.scientificName);
+        const result = await fetchWikipediaSnippet2(occurrence.scientificName);
         snippetHtml = result.snippet ? `<div>${result.snippet}</div>` : '';
         wikiLink = result.link || '#';
     } else {
@@ -345,9 +370,9 @@ async function fetchResults(lat = userLat, lon = userLon) {
     let snippetHtml = '';
     let wikiLink = '#'; // Default link if no Wikipedia entry is available
 
- if (commonName == "No common name available") {
+ if (commonName == 'No common name available') {
         // Use scientific name if commonName is not available
-        const result = await fetchWikipediaSnippet(occurrence.scientificName);
+        const result = await fetchWikipediaSnippet2(occurrence.scientificName);
         snippetHtml = result.snippet ? `<div>${result.snippet}</div>` : '';
         wikiLink = result.link || '#';
     } else {
