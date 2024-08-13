@@ -101,7 +101,7 @@ async function fetchWikipediaSnippet(query) {
 
         if (data.query.search.length > 0) {
             const page = data.query.search[0];
-            const snippet = page.snippet + "..."; // Get the HTML snippet
+            const snippet = page.snippet; // Get the HTML snippet
             const pageId = page.pageid;
             const wikiLink = `https://en.wikipedia.org/?curid=${pageId}`;
 
@@ -212,12 +212,12 @@ async function fetchResultsForRandomLocation(lat, lon) {
     if (commonName == "No common name available") {
         // Use scientific name if commonName is not available
         const result = await fetchWikipediaSnippet(occurrence.scientificName);
-        snippetHtml = result.snippet ? `<div>${result.snippet}</div>` : '';
+        snippetHtml = result.snippet ? <div>${result.snippet}&hellip;</div>` : '';
         wikiLink = result.link || '#';
     } else {
         // Use common name for the Wikipedia search
         const result = await fetchWikipediaSnippet(commonName);
-        snippetHtml = result.snippet ? `<div>${result.snippet}</div>` : '';
+        snippetHtml = result.snippet ? `<div>${result.snippet}&hellip;</div>` : '';
         wikiLink = result.link || '#';
     }
 
@@ -353,12 +353,12 @@ async function fetchResults(lat = userLat, lon = userLon) {
  if (commonName == 'No common name available') {
         // Use scientific name if commonName is not available
         const result = await fetchWikipediaSnippet(occurrence.scientificName);
-        snippetHtml = result.snippet ? `<div>${result.snippet}</div>` : '';
+        snippetHtml = result.snippet ? `<div>${result.snippet}&hellip;</div>` : '';
         wikiLink = result.link || '#';
     } else {
         // Use common name for the Wikipedia search
         const result = await fetchWikipediaSnippet(commonName);
-        snippetHtml = result.snippet ? `<div>${result.snippet}</div>` : '';
+        snippetHtml = result.snippet ? `<div>${result.snippet}&hellip;</div>` : '';
         wikiLink = result.link || '#';
     }
 
