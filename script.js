@@ -121,6 +121,8 @@ async function fetchResultsForRandomLocation(lat, lon) {
     const distance = 80; // Fixed radius of 80 miles for random location
     const resultsCount = parseInt(document.getElementById('results').value) || 10;
     const kingdomFilter = document.getElementById('kingdomFilter').value;
+    const selectedMonth = document.getElementById('month').value;
+    const mostRecent = document.getElementById('mostRecent').checked;
 
     const milesToDegrees = 0.014;
     const distanceDegrees = distance * milesToDegrees;
@@ -132,11 +134,20 @@ async function fetchResultsForRandomLocation(lat, lon) {
 
     let gbifUrl = `https://api.gbif.org/v1/occurrence/search?year=2018,2024&decimalLatitude=${latMin},${latMax}&decimalLongitude=${lonMin},${lonMax}&limit=${resultsCount}`;
 
+    if (selectedMonth !== 'all') {
+        gbifUrl += `&month=${selectedMonth}`;
+    }
+
+    if (mostRecent) {
+        gbifUrl += `&sort=eventDate`;
+    }
+
     const listContainer = document.getElementById('listContainer');
     listContainer.innerHTML = '';
 
     markers.forEach(marker => map.removeLayer(marker));
     markers = [];
+
 
     let occurrences = [];
     let additionalFetches = 0;
@@ -267,6 +278,8 @@ async function fetchResults(lat = userLat, lon = userLon) {
     const distanceUnit = document.getElementById('distanceUnit').value;
     const resultsCount = parseInt(document.getElementById('results').value) || 10;
     const kingdomFilter = document.getElementById('kingdomFilter').value;
+    const selectedMonth = document.getElementById('month').value;
+    const mostRecent = document.getElementById('mostRecent').checked;
 
     const milesToDegrees = 0.014;
     const kilometersToDegrees = 0.008;
@@ -279,12 +292,19 @@ async function fetchResults(lat = userLat, lon = userLon) {
 
     let gbifUrl = `https://api.gbif.org/v1/occurrence/search?year=2018,2024&decimalLatitude=${latMin},${latMax}&decimalLongitude=${lonMin},${lonMax}&limit=${resultsCount}`;
 
+    if (selectedMonth !== 'all') {
+        gbifUrl += `&month=${selectedMonth}`;
+    }
+
+    if (mostRecent) {
+        gbifUrl += `&sort=eventDate`;
+    }
+
     const listContainer = document.getElementById('listContainer');
     listContainer.innerHTML = '';
 
     markers.forEach(marker => map.removeLayer(marker));
     markers = [];
-
     let occurrences = [];
     let additionalFetches = 0;
 
