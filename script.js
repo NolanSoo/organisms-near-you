@@ -192,6 +192,7 @@ async function fetchResultsForRandomLocation(lat, lon) {
     occurrences.sort((a, b) => a.occurrence.distance - b.occurrence.distance);
 
     occurrences.forEach(async ({ occurrence, commonName }) => {
+    console.log(commonName);
     const occurrenceDiv = document.createElement('div');
     occurrenceDiv.className = 'occurrence';
 
