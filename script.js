@@ -407,7 +407,6 @@ async function fetchResults(lat = userLat, lon = userLon) {
 }
 // Function to generate random location and fetch results
 async function randomLocation() {
-  const radiusInMiles = 50; // Fixed radius for random location
   const latitudeRange = [-50, 60]; // Latitude range (50°S to 60°N)
   const longRange = [-179.999, 179.999]; // Full longitude range
   let resultsFound = false;
@@ -428,9 +427,11 @@ async function randomLocation() {
 
       // Attempt to fetch results using the generated coordinates
       resultsFound = await fetchResultsForRandomLocation(baseLat, baseLon);
-      
+
       if (resultsFound) {
         console.log('Results found at random location.');
+        // Break out of the loop if results are found
+        break;
       } else {
         console.log('No results found. Trying again...');
       }
