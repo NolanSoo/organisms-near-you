@@ -82,52 +82,57 @@ async function getCommonNameAndKingdom(taxonKey) {
     };
   }
 }
-// Function to fetch Wikipedia snippet for a given common name
-// Function to fetch Wikipedia snippet for a given common name
 // Function to fetch Wikipedia snippet for a given common name or scientific name
 async function fetchWikipediaSnippet(query) {
     const searchUrl = `https://en.wikipedia.org/w/api.php?action=query&format=json&list=search&formatversion=2&srsearch=${encodeURIComponent(query)}&srlimit=1&origin=*`;
-
+    
     try {
         console.log(`Fetching Wikipedia snippet for query: ${query}`); // Debug log
 
+        // Fetch the search results
         const searchResponse = await fetch(searchUrl);
         if (!searchResponse.ok) {
             throw new Error(`HTTP error! status: ${searchResponse.status}`);
         }
 
         const searchData = await searchResponse.json();
-        console.log('Wikipedia API response:', searchData); // Debug log
+        console.log('Wikipedia API search response:', searchData); // Debug log
 
         if (searchData.query.search.length > 0) {
-            const page = searchData.query.search[0];
-            const pageId = page.pageid;
-            const title = page.title;
-            const parseUrl = `https://en.wikipedia.org/w/api.php?action=parse&format=json&page=${encodeURIComponent(title)}&prop=text&formatversion=2&origin=*`;
+            const pageTitle = searchData.query.search[0].title;
+            const pageId = searchData.query.search[0].pageid;
+            const pageUrl = `https://en.wikipedia.org/w/api.php?action=parse&format=json&page=${encodeURIComponent(pageTitle)}&prop=text&formatversion=2&origin=*`;
 
-            const parseResponse = await fetch(parseUrl);
-            if (!parseResponse.ok) {
-                throw new Error(`HTTP error! status: ${parseResponse.status}`);
+            // Fetch the page content
+            const pageResponse = await fetch(pageUrl);
+            if (!pageResponse.ok) {
+                throw new Error(`HTTP error! status: ${pageResponse.status}`);
             }
 
-            const parseData = await parseResponse.json();
-            console.log('Parsed Wikipedia page response:', parseData); // Debug log
+            const pageData = await pageResponse.json();
+            console.log('Wikipedia API page response:', pageData); // Debug log
 
-            const htmlContent = parseData.parse.text;
-            const div = document.createElement('div');
-            div.innerHTML = htmlContent;
+            if (pageData.parse && pageData.parse.text && pageData.parse.text['*']) {
+                let htmlContent = pageData.parse.text['*'];
 
-            // Extract text and remove HTML tags
-            const textContent = div.textContent || div.innerText || '';
-            const sentences = textContent.split('. ').map(sentence => sentence.trim()).filter(sentence => sentence.length > 0);
-            
-            // Limit to the first 3 sentences or first section
-            let snippet = sentences.slice(0, 3).join('. ');
-            if (!snippet.endsWith('.')) snippet += '.';
+                // Extract the main content from the HTML
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(htmlContent, 'text/html');
+                let textContent = doc.querySelector('.mw-parser-output')?.textContent || '';
 
-            const wikiLink = `https://en.wikipedia.org/?curid=${pageId}`;
-            return { snippet, link: wikiLink };
+                // Remove taxonomy details
+                textContent = textContent.split('Scientific classification')[0];
 
+                // Limit to the first 3 sentences
+                const sentences = textContent.match(/[^.!?]+[.!?]*/g) || [];
+                const snippet = sentences.slice(0, 3).join(' ').trim();
+
+                // Return snippet and wiki link
+                const wikiLink = `https://en.wikipedia.org/?curid=${pageId}`;
+                return { snippet: snippet || 'No snippet available', link: wikiLink };
+            } else {
+                return { snippet: 'No snippet available', link: '#' };
+            }
         } else {
             return { snippet: 'No snippet available', link: '#' };
         }
@@ -136,6 +141,7 @@ async function fetchWikipediaSnippet(query) {
         return { snippet: 'Error fetching snippet', link: '#' };
     }
 }
+  
 
 
 // Function to fetch results for a random location
