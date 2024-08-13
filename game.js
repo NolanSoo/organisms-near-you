@@ -10,6 +10,8 @@ let personalBest = parseInt(localStorage.getItem('personalBest')) || 0;
 
 const searchRadiusMiles = 50;
 const searchRadiusKm = searchRadiusMiles * 1.60934;
+const latitudeRange = [-50, 60]; // Latitude range (50°S to 60°N)
+const longitudeRange = [-130, 160]; // Full longitude range
 
 document.getElementById('startGame').addEventListener('click', startGame);
 
@@ -47,7 +49,7 @@ function startGame() {
 
 function startNewRound() {
   if (currentRound >= 4) {
-    console.log(`Ending game after 4 rounds.`);
+    console.log("Ending game after 4 rounds.");
     endGame();
     return;
   }
@@ -59,30 +61,24 @@ function startNewRound() {
 }
 
 function findLocationWithPicture() {
-  const isEuropeMode = document.getElementById('europe').checked;
-  const isAsiaMode = document.getElementById('asia').checked;
-  const isUSAMode = document.getElementById('usa').checked;
+  let latitudeRange, longitudeRange;
 
-  let latitudeRange, longRange;
-  let countryFilter = '';
-
-  if (isAsiaMode) {
-    latitudeRange = [11, 59];
-    longRange = [43, 120];
-  } else if (isUSAMode) {
-    latitudeRange = [26, 49];
-    longRange = [-124, -68];
-    countryFilter = 'US';
-  } else if (isEuropeMode) {
+  if (document.getElementById('europe').checked) {
     latitudeRange = [37, 63];
-    longRange = [-10, 36];
+    longitudeRange = [-10, 36];
+  } else if (document.getElementById('asia').checked) {
+    latitudeRange = [11, 59];
+    longitudeRange = [43, 120];
+  } else if (document.getElementById('usacanada').checked) {
+    latitudeRange = [32, 57];
+    longitudeRange = [-124, -63];
   } else {
     latitudeRange = [-50, 60];
-    longRange = [-130, 160];
+    longitudeRange = [-130, 160];
   }
 
-  const baseLat = Math.random() * (latitudeRange[1] - latitudeRange[0]) + latitudeRange[0]; 
-  const baseLon = Math.random() * (longRange[1] - longRange[0]) + longRange[0]; 
+  const baseLat = Math.random() * (latitudeRange[1] - latitudeRange[0]) + latitudeRange[0];
+  const baseLon = Math.random() * (longitudeRange[1] - longitudeRange[0]) + longitudeRange[0];
   console.log(`Searching for location with coordinates around: ${baseLat}, ${baseLon}`);
 
   const latRange = [baseLat - 0.05, baseLat + 0.05];
@@ -95,23 +91,13 @@ function findLocationWithPicture() {
     map.removeLayer(userLocationMarker);
   }
 
-  let url = `https://api.gbif.org/v1/occurrence/search?decimalLatitude=${latRange[0]},${latRange[1]}&decimalLongitude=${lonRange[0]},${lonRange[1]}&distance=${searchRadiusKm}&limit=1`;
-  
-  if (countryFilter) {
-    url += `&country=${countryFilter}`;
-  }
+  const url = `https://api.gbif.org/v1/occurrence/search?decimalLatitude=${latRange[0]},${latRange[1]}&decimalLongitude=${lonRange[0]},${lonRange[1]}&distance=${searchRadiusKm}&limit=1`;
 
   fetch(url)
     .then(response => response.json())
     .then(data => {
       console.log("Fetch response data:", data);
-      let validResults = data.results.filter(result => result.media && result.media.length > 0);
-
-      // Additional filter for USA mode
-      if (isUSAMode) {
-        validResults = validResults.filter(result => result.country === 'US');
-      }
-
+      const validResults = data.results.filter(result => result.media && result.media.length > 0);
       if (validResults.length > 0) {
         console.log("Found valid result with media.");
         correctLocation = {
@@ -207,12 +193,13 @@ function endGame() {
 }
 
 function toggleLoadingScreen(show) {
-    const loadingScreen = document.getElementById('loadingScreen');
-    if (loadingScreen) {
-        loadingScreen.style.display = show ? 'flex' : 'none';
-    } else {
-        console.error("Loading screen element not found.");
-    }
+  const loadingScreen = document.getElementById('loadingScreen');
+  if (loadingScreen) {
+    loadingScreen.style.display = show ? 'flex' : 'none';
+  } else {
+    console.error("Loading screen element not found.");
+  }
 }
 
 initializeMap();
+
