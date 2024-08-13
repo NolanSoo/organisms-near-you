@@ -101,7 +101,7 @@ async function fetchWikipediaSnippet(query) {
 
         if (data.query.search.length > 0) {
             const page = data.query.search[0];
-            const snippet = page.snippet; // Get the HTML snippet
+            const snippet = page.snippet + "..."; // Get the HTML snippet
             const pageId = page.pageid;
             const wikiLink = `https://en.wikipedia.org/?curid=${pageId}`;
 
