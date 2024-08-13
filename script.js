@@ -120,8 +120,11 @@ async function fetchWikipediaSnippet(query) {
                 const doc = parser.parseFromString(htmlContent, 'text/html');
                 let textContent = doc.querySelector('.mw-parser-output')?.textContent || '';
 
-                // Remove taxonomy details
-                textContent = textContent.split('Scientific classification')[0];
+                // Remove taxonomy details by splitting at the section headers
+                const splitPoint = textContent.indexOf('Scientific classification');
+                if (splitPoint !== -1) {
+                    textContent = textContent.substring(0, splitPoint);
+                }
 
                 // Limit to the first 3 sentences
                 const sentences = textContent.match(/[^.!?]+[.!?]*/g) || [];
@@ -141,6 +144,7 @@ async function fetchWikipediaSnippet(query) {
         return { snippet: 'Error fetching snippet', link: '#' };
     }
 }
+
   
 
 
