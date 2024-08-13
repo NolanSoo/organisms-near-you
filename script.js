@@ -192,7 +192,6 @@ async function fetchResultsForRandomLocation(lat, lon) {
     occurrences.sort((a, b) => a.occurrence.distance - b.occurrence.distance);
 
     occurrences.forEach(async ({ occurrence, commonName }) => {
-    console.log(commonName);
     const occurrenceDiv = document.createElement('div');
     occurrenceDiv.className = 'occurrence';
 
@@ -205,7 +204,7 @@ async function fetchResultsForRandomLocation(lat, lon) {
     let snippetHtml = '';
     let wikiLink = '#'; // Default link if no Wikipedia entry is available
 
-    if (!commonName) {
+    if (commonName == "No common name available") {
         // Use scientific name if commonName is not available
         const result = await fetchWikipediaSnippet(occurrence.scientificName);
         snippetHtml = result.snippet ? `<div>${result.snippet}</div>` : '';
@@ -346,7 +345,7 @@ async function fetchResults(lat = userLat, lon = userLon) {
     let snippetHtml = '';
     let wikiLink = '#'; // Default link if no Wikipedia entry is available
 
-    if (!commonName) {
+ if (commonName == "No common name available") {
         // Use scientific name if commonName is not available
         const result = await fetchWikipediaSnippet(occurrence.scientificName);
         snippetHtml = result.snippet ? `<div>${result.snippet}</div>` : '';
