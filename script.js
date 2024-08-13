@@ -86,26 +86,48 @@ async function getCommonNameAndKingdom(taxonKey) {
 // Function to fetch Wikipedia snippet for a given common name
 // Function to fetch Wikipedia snippet for a given common name or scientific name
 async function fetchWikipediaSnippet(query) {
-    const url = `https://en.wikipedia.org/w/api.php?action=query&format=json&list=search&formatversion=2&srsearch=${encodeURIComponent(query)}&srlimit=1&origin=*`;
+    const searchUrl = `https://en.wikipedia.org/w/api.php?action=query&format=json&list=search&formatversion=2&srsearch=${encodeURIComponent(query)}&srlimit=1&origin=*`;
 
     try {
         console.log(`Fetching Wikipedia snippet for query: ${query}`); // Debug log
 
-        const response = await fetch(url);
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+        const searchResponse = await fetch(searchUrl);
+        if (!searchResponse.ok) {
+            throw new Error(`HTTP error! status: ${searchResponse.status}`);
         }
 
-        const data = await response.json();
-        console.log('Wikipedia API response:', data); // Debug log
+        const searchData = await searchResponse.json();
+        console.log('Wikipedia API response:', searchData); // Debug log
 
-        if (data.query.search.length > 0) {
-            const page = data.query.search[0];
-            const snippet = page.snippet; // Get the HTML snippet
+        if (searchData.query.search.length > 0) {
+            const page = searchData.query.search[0];
             const pageId = page.pageid;
-            const wikiLink = `https://en.wikipedia.org/?curid=${pageId}`;
+            const title = page.title;
+            const parseUrl = `https://en.wikipedia.org/w/api.php?action=parse&format=json&page=${encodeURIComponent(title)}&prop=text&formatversion=2&origin=*`;
 
+            const parseResponse = await fetch(parseUrl);
+            if (!parseResponse.ok) {
+                throw new Error(`HTTP error! status: ${parseResponse.status}`);
+            }
+
+            const parseData = await parseResponse.json();
+            console.log('Parsed Wikipedia page response:', parseData); // Debug log
+
+            const htmlContent = parseData.parse.text;
+            const div = document.createElement('div');
+            div.innerHTML = htmlContent;
+
+            // Extract text and remove HTML tags
+            const textContent = div.textContent || div.innerText || '';
+            const sentences = textContent.split('. ').map(sentence => sentence.trim()).filter(sentence => sentence.length > 0);
+            
+            // Limit to the first 3 sentences or first section
+            let snippet = sentences.slice(0, 3).join('. ');
+            if (!snippet.endsWith('.')) snippet += '.';
+
+            const wikiLink = `https://en.wikipedia.org/?curid=${pageId}`;
             return { snippet, link: wikiLink };
+
         } else {
             return { snippet: 'No snippet available', link: '#' };
         }
@@ -114,6 +136,7 @@ async function fetchWikipediaSnippet(query) {
         return { snippet: 'Error fetching snippet', link: '#' };
     }
 }
+
 
 // Function to fetch results for a random location
 async function fetchResultsForRandomLocation(lat, lon) {
