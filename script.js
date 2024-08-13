@@ -205,7 +205,7 @@ async function fetchResultsForRandomLocation(lat, lon) {
 
     occurrences.sort((a, b) => a.occurrence.distance - b.occurrence.distance);
 
-    occurrences.forEach(async ({ occurrence, commonName }) => {
+    occurrences.forEach(async ({ occurrence, scientificName }) => {
         const occurrenceDiv = document.createElement('div');
         occurrenceDiv.className = 'occurrence';
 
@@ -218,11 +218,10 @@ async function fetchResultsForRandomLocation(lat, lon) {
         let snippetHtml = '';
         let wikiLink = '#'; // Default link if no Wikipedia entry is available
 
-        if (commonName !== "No common name available") {
-            const result = await fetchWikipediaSnippet(occurrence.scientificName);
-            snippetHtml = result.snippet ? `<div>${result.snippet}&hellip;</div>` : '';
-            wikiLink = result.link || '#';
-        }
+        // Always use scientific name for Wikipedia search
+        const result = await fetchWikipediaSnippet(scientificName);
+        snippetHtml = result.snippet ? `<div>${result.snippet}&hellip;</div>` : '';
+        wikiLink = result.link || '#';
 
         const lat = occurrence.decimalLatitude;
         const lng = occurrence.decimalLongitude;
@@ -233,7 +232,7 @@ async function fetchResultsForRandomLocation(lat, lon) {
 
         occurrenceDiv.innerHTML = `
             <strong>${commonName || 'Common Name not available'}</strong><br>
-            <em>${occurrence.scientificName}</em><br>
+            <em>${scientificName}</em><br>
             <strong>Locality:</strong> ${locality}<br>
             <strong>Distance:</strong> ${distanceInKm} km / ${distanceInMiles} miles<br>
             <a href="${wikiLink}" target="_blank">Wikipedia</a><br>
@@ -245,7 +244,7 @@ async function fetchResultsForRandomLocation(lat, lon) {
 
         const markerPopupContent = `
             <strong>${commonName || 'Common Name not available'}</strong><br>
-            <em>${occurrence.scientificName}</em><br>
+            <em>${scientificName}</em><br>
             <strong>Locality:</strong> ${locality}<br>
             <strong>Distance:</strong> ${distanceInKm} km / ${distanceInMiles} miles<br>
             <a href="${wikiLink}" target="_blank">Wikipedia</a><br>
@@ -259,8 +258,6 @@ async function fetchResultsForRandomLocation(lat, lon) {
         marker.addTo(map);
     });
 }
-
-
 
 // Function to fetch results based on provided coordinates
 // Function to fetch results based on provided coordinates
@@ -327,7 +324,7 @@ async function fetchResults(lat = userLat, lon = userLon) {
 
         if (occurrences.length < resultsCount) {
             additionalFetches++;
-            gbifUrl = `https://api.gbif.org/v1/occurrence/search?year=2018,2024&decimalLatitude=${latMin},${latMax}&decimalLongitude=${lonMin},${lonMax}&limit=${resultsCount}&offset=${data.offset + data.limit * additionalFetches}`;
+            gbifUrl = `https://api.gbif.org/v1/occurrence/search?decimalLatitude=${latMin},${latMax}&decimalLongitude=${lonMin},${lonMax}&limit=${resultsCount}&offset=${data.offset + data.limit * additionalFetches}`;
         }
 
         if (Date.now() - fetchStartTime > 100000) {
@@ -336,14 +333,13 @@ async function fetchResults(lat = userLat, lon = userLon) {
         }
     }
 
-    clearTimeout(timeoutHandle); // Clear timeout if results are fetched in time
+    clearTimeout(timeoutHandle);
 
     if (occurrences.length === 0) {
         listContainer.innerHTML = '<p style="color: red;">No results found. Please adjust your filters.</p>';
         return;
     }
 
-    // Calculate distance from requested location
     const requestedLatLng = L.latLng(lat, lon);
 
     occurrences.forEach(({ occurrence }) => {
@@ -351,14 +347,9 @@ async function fetchResults(lat = userLat, lon = userLon) {
         occurrence.distance = requestedLatLng.distanceTo(occurrenceLatLng);
     });
 
-    // Sort by date if the checkbox is checked
-    if (mostRecent) {
-        occurrences.sort((a, b) => new Date(b.occurrence.eventDate) - new Date(a.occurrence.eventDate));
-    } else {
-        occurrences.sort((a, b) => a.occurrence.distance - b.occurrence.distance);
-    }
+    occurrences.sort((a, b) => a.occurrence.distance - b.occurrence.distance);
 
-    occurrences.forEach(async ({ occurrence, commonName }) => {
+    occurrences.forEach(async ({ occurrence, scientificName }) => {
         const occurrenceDiv = document.createElement('div');
         occurrenceDiv.className = 'occurrence';
 
@@ -371,25 +362,21 @@ async function fetchResults(lat = userLat, lon = userLon) {
         let snippetHtml = '';
         let wikiLink = '#'; // Default link if no Wikipedia entry is available
 
-        if (commonName !== "No common name available") {
-            // Always use scientific name for the Wikipedia search
-            const result = await fetchWikipediaSnippet(occurrence.scientificName);
-            snippetHtml = result.snippet ? `<div>${result.snippet}&hellip;</div>` : '';
-            wikiLink = result.link || '#';
-        }
+        // Always use scientific name for Wikipedia search
+        const result = await fetchWikipediaSnippet(scientificName);
+        snippetHtml = result.snippet ? `<div>${result.snippet}&hellip;</div>` : '';
+        wikiLink = result.link || '#';
 
-        // Assuming you have latitude and longitude from the occurrence data
         const lat = occurrence.decimalLatitude;
         const lng = occurrence.decimalLongitude;
 
-        // Center the map to the location without changing the zoom level
         if (lat && lng) {
             map.setView([lat, lng], map.getZoom());
         }
 
         occurrenceDiv.innerHTML = `
             <strong>${commonName || 'Common Name not available'}</strong><br>
-            <em>${occurrence.scientificName}</em><br>
+            <em>${scientificName}</em><br>
             <strong>Locality:</strong> ${locality}<br>
             <strong>Distance:</strong> ${distanceInKm} km / ${distanceInMiles} miles<br>
             <a href="${wikiLink}" target="_blank">Wikipedia</a><br>
@@ -401,7 +388,7 @@ async function fetchResults(lat = userLat, lon = userLon) {
 
         const markerPopupContent = `
             <strong>${commonName || 'Common Name not available'}</strong><br>
-            <em>${occurrence.scientificName}</em><br>
+            <em>${scientificName}</em><br>
             <strong>Locality:</strong> ${locality}<br>
             <strong>Distance:</strong> ${distanceInKm} km / ${distanceInMiles} miles<br>
             <a href="${wikiLink}" target="_blank">Wikipedia</a><br>
@@ -415,6 +402,7 @@ async function fetchResults(lat = userLat, lon = userLon) {
         marker.addTo(map);
     });
 }
+
 
 
 // Function to generate random location and fetch results
