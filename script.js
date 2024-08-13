@@ -330,14 +330,14 @@ async function fetchResults(lat = userLat, lon = userLon) {
     // Calculate distance from requested location
     const requestedLatLng = L.latLng(lat, lon);
 
-    occurrences.forEach(({ occurrence }) => {
+  occurrences.forEach(({ occurrence }) => {
         const occurrenceLatLng = L.latLng(occurrence.decimalLatitude, occurrence.decimalLongitude);
         occurrence.distance = requestedLatLng.distanceTo(occurrenceLatLng);
     });
 
     occurrences.sort((a, b) => a.occurrence.distance - b.occurrence.distance);
 
- occurrences.forEach(async ({ occurrence, commonName }) => {
+    occurrences.forEach(async ({ occurrence, commonName }) => {
     const occurrenceDiv = document.createElement('div');
     occurrenceDiv.className = 'occurrence';
 
@@ -350,10 +350,10 @@ async function fetchResults(lat = userLat, lon = userLon) {
     let snippetHtml = '';
     let wikiLink = '#'; // Default link if no Wikipedia entry is available
 
- if (commonName == 'No common name available') {
+    if (commonName == "No common name available") {
         // Use scientific name if commonName is not available
         const result = await fetchWikipediaSnippet(occurrence.scientificName);
-        snippetHtml = result.snippet ? `<div>${result.snippet}&hellip;</div>` : '';
+        snippetHtml = result.snippet ? <div>${result.snippet}&hellip;</div>` : '';
         wikiLink = result.link || '#';
     } else {
         // Use common name for the Wikipedia search
@@ -361,6 +361,7 @@ async function fetchResults(lat = userLat, lon = userLon) {
         snippetHtml = result.snippet ? `<div>${result.snippet}&hellip;</div>` : '';
         wikiLink = result.link || '#';
     }
+
 
     occurrenceDiv.innerHTML = `
         <strong>${commonName || 'Common Name not available'}</strong><br>
