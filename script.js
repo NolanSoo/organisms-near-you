@@ -118,18 +118,11 @@ async function fetchWikipediaSnippet(query) {
 // Function to fetch results for a random location
 async function fetchResultsForRandomLocation(lat, lon) {
     fetchStartTime = Date.now();
-    console.log('Fetching results for random location');
-    console.log(`Latitude: ${lat}, Longitude: ${lon}`);
-    
     const distance = 80; // Fixed radius of 80 miles for random location
     const resultsCount = parseInt(document.getElementById('results').value) || 10;
     const kingdomFilter = document.getElementById('kingdomFilter').value;
     const eventDateFilter = document.getElementById('eventDate').value;
     const showRecentResults = document.getElementById('recentResults').checked;
-
-    console.log(`Distance: ${distance}, Results Count: ${resultsCount}`);
-    console.log(`Kingdom Filter: ${kingdomFilter}, Event Date Filter: ${eventDateFilter}`);
-    console.log(`Show Recent Results: ${showRecentResults}`);
 
     const milesToDegrees = 0.014;
     const distanceDegrees = distance * milesToDegrees;
@@ -144,16 +137,12 @@ async function fetchResultsForRandomLocation(lat, lon) {
     // Apply eventDate filter if selected
     if (eventDateFilter !== 'all') {
         gbifUrl += `&eventDate=${eventDateFilter}-01,${eventDateFilter}-31`;
-        console.log(`Event Date Filter Applied: ${eventDateFilter}`);
     }
 
     // Apply sort order for recent results
     if (showRecentResults) {
         gbifUrl += `&sort=desc&orderBy=eventDate`;
-        console.log('Sorting by most recent results');
     }
-
-    console.log(`Fetching from URL: ${gbifUrl}`);
 
     const listContainer = document.getElementById('listContainer');
     listContainer.innerHTML = '';
@@ -166,59 +155,47 @@ async function fetchResultsForRandomLocation(lat, lon) {
 
     if (timeoutHandle) {
         clearTimeout(timeoutHandle);
-        console.log('Previous timeout cleared');
     }
 
     timeoutHandle = setTimeout(() => {
         listContainer.innerHTML = '<p style="color: red;">Error: The search is taking too long. Please try again with different filters or fewer results.</p>';
-        console.log('Search timed out');
     }, 100000); // 100 seconds
 
     while ((occurrences.length < resultsCount) && (additionalFetches < 10)) {
-        console.log(`Fetching data, attempt ${additionalFetches + 1}`);
         const response = await fetch(gbifUrl);
         const data = await response.json();
-        console.log(`Received ${data.results.length} results`);
-
         const fetchDetailsPromises = data.results.map(async occurrence => {
             const details = await getCommonNameAndKingdom(occurrence.taxonKey);
             return { occurrence, ...details };
         });
 
         const results = await Promise.all(fetchDetailsPromises);
-        console.log(`Fetched details for ${results.length} occurrences`);
 
         const filteredResults = results.filter(({ occurrence, kingdom }) => {
             return (kingdomFilter === 'all' || kingdom === kingdomFilter) &&
                    (occurrence.media && occurrence.media.length > 0);
         });
 
-        console.log(`Filtered results count: ${filteredResults.length}`);
         occurrences = occurrences.concat(filteredResults);
 
         if (occurrences.length < resultsCount) {
             additionalFetches++;
             gbifUrl = `https://api.gbif.org/v1/occurrence/search?decimalLatitude=${latMin},${latMax}&decimalLongitude=${lonMin},${lonMax}&limit=${resultsCount}&offset=${data.offset + data.limit * additionalFetches}`;
-            console.log(`Updating URL for next fetch: ${gbifUrl}`);
         }
 
         if (Date.now() - fetchStartTime > 100000) {
             listContainer.innerHTML = '<p style="color: red;">Error: The search is taking too long. Please try again with different filters or fewer results.</p>';
-            console.log('Search took too long');
             return;
         }
     }
 
     clearTimeout(timeoutHandle);
-    console.log('Timeout cleared');
 
     if (occurrences.length === 0) {
         listContainer.innerHTML = '<p style="color: red;">No results found. Please adjust your filters.</p>';
-        console.log('No results found');
         return;
     }
 
-    console.log('Results found:', occurrences.length);
     const requestedLatLng = L.latLng(lat, lon);
 
     occurrences.forEach(({ occurrence }) => {
@@ -227,7 +204,6 @@ async function fetchResultsForRandomLocation(lat, lon) {
     });
 
     occurrences.sort((a, b) => a.occurrence.distance - b.occurrence.distance);
-    console.log('Occurrences sorted by distance');
 
     occurrences.forEach(async ({ occurrence, commonName }) => {
         const occurrenceDiv = document.createElement('div');
@@ -246,7 +222,6 @@ async function fetchResultsForRandomLocation(lat, lon) {
             const result = await fetchWikipediaSnippet(occurrence.scientificName);
             snippetHtml = result.snippet ? `<div>${result.snippet}&hellip;</div>` : '';
             wikiLink = result.link || '#';
-            console.log(`Fetched Wikipedia snippet for ${occurrence.scientificName}`);
         }
 
         const lat = occurrence.decimalLatitude;
@@ -254,7 +229,6 @@ async function fetchResultsForRandomLocation(lat, lon) {
 
         if (lat && lng) {
             map.setView([lat, lng], map.getZoom());
-            console.log(`Map centered at Latitude: ${lat}, Longitude: ${lng}`);
         }
 
         occurrenceDiv.innerHTML = `
@@ -283,9 +257,9 @@ async function fetchResultsForRandomLocation(lat, lon) {
             .bindPopup(markerPopupContent);
         markers.push(marker);
         marker.addTo(map);
-        console.log(`Added marker for ${commonName || occurrence.scientificName}`);
     });
 }
+
 
 
 // Function to fetch results based on provided coordinates
@@ -296,8 +270,8 @@ async function fetchResults(lat = userLat, lon = userLon) {
     const distanceUnit = document.getElementById('distanceUnit').value;
     const resultsCount = parseInt(document.getElementById('results').value) || 10;
     const kingdomFilter = document.getElementById('kingdomFilter').value;
-    const eventDateFilter = document.getElementById('eventDate').value;
-    const showRecentResults = document.getElementById('recentResults').checked;
+    const monthFilter = document.getElementById('monthFilter').value;
+    const mostRecent = document.getElementById('recentResults').checked;
 
     const milesToDegrees = 0.014;
     const kilometersToDegrees = 0.008;
@@ -310,14 +284,9 @@ async function fetchResults(lat = userLat, lon = userLon) {
 
     let gbifUrl = `https://api.gbif.org/v1/occurrence/search?year=2018,2024&decimalLatitude=${latMin},${latMax}&decimalLongitude=${lonMin},${lonMax}&limit=${resultsCount}`;
 
-    // Apply eventDate filter if selected
-    if (eventDateFilter !== 'all') {
-        gbifUrl += `&eventDate=${eventDateFilter}-01,${eventDateFilter}-31`;
-    }
-
-    // Apply sort order for recent results
-    if (showRecentResults) {
-        gbifUrl += `&sort=desc&orderBy=eventDate`;
+    // Apply month filter if specified
+    if (monthFilter !== 'all') {
+        gbifUrl += `&month=${monthFilter}`;
     }
 
     const listContainer = document.getElementById('listContainer');
@@ -382,7 +351,12 @@ async function fetchResults(lat = userLat, lon = userLon) {
         occurrence.distance = requestedLatLng.distanceTo(occurrenceLatLng);
     });
 
-    occurrences.sort((a, b) => a.occurrence.distance - b.occurrence.distance);
+    // Sort by date if the checkbox is checked
+    if (mostRecent) {
+        occurrences.sort((a, b) => new Date(b.occurrence.eventDate) - new Date(a.occurrence.eventDate));
+    } else {
+        occurrences.sort((a, b) => a.occurrence.distance - b.occurrence.distance);
+    }
 
     occurrences.forEach(async ({ occurrence, commonName }) => {
         const occurrenceDiv = document.createElement('div');
@@ -442,6 +416,7 @@ async function fetchResults(lat = userLat, lon = userLon) {
     });
 }
 
+
 // Function to generate random location and fetch results
 async function randomLocation() {
   const radiusInMiles = 50; // Fixed radius for random location
@@ -477,9 +452,6 @@ async function randomLocation() {
     }
   }
 }
-
-
-
 
 // Update map based on selected address or random location
 function updateMap() {
