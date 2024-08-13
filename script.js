@@ -205,58 +205,65 @@ async function fetchResultsForRandomLocation(lat, lon) {
 
     occurrences.sort((a, b) => a.occurrence.distance - b.occurrence.distance);
 
-    occurrences.forEach(async ({ occurrence, scientificName }) => {
-        const occurrenceDiv = document.createElement('div');
-        occurrenceDiv.className = 'occurrence';
+  
+    occurrences.forEach(async ({ occurrence, commonName }) => {
+    const occurrenceDiv = document.createElement('div');
+    occurrenceDiv.className = 'occurrence';
 
-        const speciesImage = occurrence.media && occurrence.media.length > 0 ? occurrence.media[0].identifier : '';
-        const locality = occurrence.verbatimLocality || occurrence.locality || 'Locality not available';
-        const distanceInKm = (occurrence.distance / 1000).toFixed(2);
-        const distanceInMiles = (occurrence.distance / 1609.34).toFixed(2);
-        const link = occurrence.references && occurrence.references.length > 0 ? occurrence.references[0] : '#';
-        
-        let snippetHtml = '';
-        let wikiLink = '#'; // Default link if no Wikipedia entry is available
+    const speciesImage = occurrence.media && occurrence.media.length > 0 ? occurrence.media[0].identifier : '';
+    const locality = occurrence.verbatimLocality || occurrence.locality || 'Locality not available';
+    const distanceInKm = (occurrence.distance / 1000).toFixed(2);
+    const distanceInMiles = (occurrence.distance / 1609.34).toFixed(2);
+    const link = occurrence.references && occurrence.references.length > 0 ? occurrence.references[0] : '#';
+    
+    let snippetHtml = '';
+    let wikiLink = '#'; // Default link if no Wikipedia entry is available
 
-        // Always use scientific name for Wikipedia search
-        const result = await fetchWikipediaSnippet(scientificName);
-        snippetHtml = result.snippet ? `<div>${result.snippet}&hellip;</div>` : '';
-        wikiLink = result.link || '#';
+if (commonName == "No common name available" || commonName != "No common name available") {
+    // Always use scientific name for the Wikipedia search
+    const result = await fetchWikipediaSnippet(occurrence.scientificName);
+    snippetHtml = result.snippet ? `<div>${result.snippet}&hellip;</div>` : '';
+    wikiLink = result.link || '#';
+}
 
-        const lat = occurrence.decimalLatitude;
-        const lng = occurrence.decimalLongitude;
+// Assuming you have latitude and longitude from the occurrence data
+const lat = occurrence.decimalLatitude;
+const lng = occurrence.decimalLongitude;
 
-        if (lat && lng) {
-            map.setView([lat, lng], map.getZoom());
-        }
+// Center the map to the location without changing the zoom level
+if (lat && lng) {
+    map.setView([lat, lng], map.getZoom());
+}
 
-        occurrenceDiv.innerHTML = `
-            <strong>${commonName || 'Common Name not available'}</strong><br>
-            <em>${scientificName}</em><br>
-            <strong>Locality:</strong> ${locality}<br>
-            <strong>Distance:</strong> ${distanceInKm} km / ${distanceInMiles} miles<br>
-            <a href="${wikiLink}" target="_blank">Wikipedia</a><br>
-            ${snippetHtml}
-            ${speciesImage ? `<img src="${speciesImage}" alt="${commonName || 'Species Image'}" class="species-image">` : ''}
-        `;
 
-        listContainer.appendChild(occurrenceDiv);
 
-        const markerPopupContent = `
-            <strong>${commonName || 'Common Name not available'}</strong><br>
-            <em>${scientificName}</em><br>
-            <strong>Locality:</strong> ${locality}<br>
-            <strong>Distance:</strong> ${distanceInKm} km / ${distanceInMiles} miles<br>
-            <a href="${wikiLink}" target="_blank">Wikipedia</a><br>
-            ${snippetHtml}
-            ${speciesImage ? `<img src="${speciesImage}" alt="${commonName || 'Species Image'}" class="species-image">` : ''}
-        `;
+    occurrenceDiv.innerHTML = `
+        <strong>${commonName || 'Common Name not available'}</strong><br>
+        <em>${occurrence.scientificName}</em><br>
+        <strong>Locality:</strong> ${locality}<br>
+        <strong>Distance:</strong> ${distanceInKm} km / ${distanceInMiles} miles<br>
+        <a href="${wikiLink}" target="_blank">Wikipedia</a><br>
+        ${snippetHtml}
+        ${speciesImage ? `<img src="${speciesImage}" alt="${commonName || 'Species Image'}" class="species-image">` : ''}
+    `;
 
-        const marker = L.marker([occurrence.decimalLatitude, occurrence.decimalLongitude])
-            .bindPopup(markerPopupContent);
-        markers.push(marker);
-        marker.addTo(map);
-    });
+    listContainer.appendChild(occurrenceDiv);
+
+    const markerPopupContent = `
+        <strong>${commonName || 'Common Name not available'}</strong><br>
+        <em>${occurrence.scientificName}</em><br>
+        <strong>Locality:</strong> ${locality}<br>
+        <strong>Distance:</strong> ${distanceInKm} km / ${distanceInMiles} miles<br>
+        <a href="${wikiLink}" target="_blank">Wikipedia</a><br>
+        ${snippetHtml}
+        ${speciesImage ? `<img src="${speciesImage}" alt="${commonName || 'Species Image'}" class="species-image">` : ''}
+    `;
+
+    const marker = L.marker([occurrence.decimalLatitude, occurrence.decimalLongitude])
+        .bindPopup(markerPopupContent);
+    markers.push(marker);
+    marker.addTo(map);
+});
 }
 
 // Function to fetch results based on provided coordinates
@@ -349,58 +356,65 @@ async function fetchResults(lat = userLat, lon = userLon) {
 
     occurrences.sort((a, b) => a.occurrence.distance - b.occurrence.distance);
 
-    occurrences.forEach(async ({ occurrence, scientificName }) => {
-        const occurrenceDiv = document.createElement('div');
-        occurrenceDiv.className = 'occurrence';
+    
+    occurrences.forEach(async ({ occurrence, commonName }) => {
+    const occurrenceDiv = document.createElement('div');
+    occurrenceDiv.className = 'occurrence';
 
-        const speciesImage = occurrence.media && occurrence.media.length > 0 ? occurrence.media[0].identifier : '';
-        const locality = occurrence.verbatimLocality || occurrence.locality || 'Locality not available';
-        const distanceInKm = (occurrence.distance / 1000).toFixed(2);
-        const distanceInMiles = (occurrence.distance / 1609.34).toFixed(2);
-        const link = occurrence.references && occurrence.references.length > 0 ? occurrence.references[0] : '#';
-        
-        let snippetHtml = '';
-        let wikiLink = '#'; // Default link if no Wikipedia entry is available
+    const speciesImage = occurrence.media && occurrence.media.length > 0 ? occurrence.media[0].identifier : '';
+    const locality = occurrence.verbatimLocality || occurrence.locality || 'Locality not available';
+    const distanceInKm = (occurrence.distance / 1000).toFixed(2);
+    const distanceInMiles = (occurrence.distance / 1609.34).toFixed(2);
+    const link = occurrence.references && occurrence.references.length > 0 ? occurrence.references[0] : '#';
+    
+    let snippetHtml = '';
+    let wikiLink = '#'; // Default link if no Wikipedia entry is available
 
-        // Always use scientific name for Wikipedia search
-        const result = await fetchWikipediaSnippet(scientificName);
-        snippetHtml = result.snippet ? `<div>${result.snippet}&hellip;</div>` : '';
-        wikiLink = result.link || '#';
+if (commonName == "No common name available" || commonName != "No common name available") {
+    // Always use scientific name for the Wikipedia search
+    const result = await fetchWikipediaSnippet(occurrence.scientificName);
+    snippetHtml = result.snippet ? `<div>${result.snippet}&hellip;</div>` : '';
+    wikiLink = result.link || '#';
+}
 
-        const lat = occurrence.decimalLatitude;
-        const lng = occurrence.decimalLongitude;
+// Assuming you have latitude and longitude from the occurrence data
+const lat = occurrence.decimalLatitude;
+const lng = occurrence.decimalLongitude;
 
-        if (lat && lng) {
-            map.setView([lat, lng], map.getZoom());
-        }
+// Center the map to the location without changing the zoom level
+if (lat && lng) {
+    map.setView([lat, lng], map.getZoom());
+}
 
-        occurrenceDiv.innerHTML = `
-            <strong>${commonName || 'Common Name not available'}</strong><br>
-            <em>${scientificName}</em><br>
-            <strong>Locality:</strong> ${locality}<br>
-            <strong>Distance:</strong> ${distanceInKm} km / ${distanceInMiles} miles<br>
-            <a href="${wikiLink}" target="_blank">Wikipedia</a><br>
-            ${snippetHtml}
-            ${speciesImage ? `<img src="${speciesImage}" alt="${commonName || 'Species Image'}" class="species-image">` : ''}
-        `;
 
-        listContainer.appendChild(occurrenceDiv);
 
-        const markerPopupContent = `
-            <strong>${commonName || 'Common Name not available'}</strong><br>
-            <em>${scientificName}</em><br>
-            <strong>Locality:</strong> ${locality}<br>
-            <strong>Distance:</strong> ${distanceInKm} km / ${distanceInMiles} miles<br>
-            <a href="${wikiLink}" target="_blank">Wikipedia</a><br>
-            ${snippetHtml}
-            ${speciesImage ? `<img src="${speciesImage}" alt="${commonName || 'Species Image'}" class="species-image">` : ''}
-        `;
+    occurrenceDiv.innerHTML = `
+        <strong>${commonName || 'Common Name not available'}</strong><br>
+        <em>${occurrence.scientificName}</em><br>
+        <strong>Locality:</strong> ${locality}<br>
+        <strong>Distance:</strong> ${distanceInKm} km / ${distanceInMiles} miles<br>
+        <a href="${wikiLink}" target="_blank">Wikipedia</a><br>
+        ${snippetHtml}
+        ${speciesImage ? `<img src="${speciesImage}" alt="${commonName || 'Species Image'}" class="species-image">` : ''}
+    `;
 
-        const marker = L.marker([occurrence.decimalLatitude, occurrence.decimalLongitude])
-            .bindPopup(markerPopupContent);
-        markers.push(marker);
-        marker.addTo(map);
-    });
+    listContainer.appendChild(occurrenceDiv);
+
+    const markerPopupContent = `
+        <strong>${commonName || 'Common Name not available'}</strong><br>
+        <em>${occurrence.scientificName}</em><br>
+        <strong>Locality:</strong> ${locality}<br>
+        <strong>Distance:</strong> ${distanceInKm} km / ${distanceInMiles} miles<br>
+        <a href="${wikiLink}" target="_blank">Wikipedia</a><br>
+        ${snippetHtml}
+        ${speciesImage ? `<img src="${speciesImage}" alt="${commonName || 'Species Image'}" class="species-image">` : ''}
+    `;
+
+    const marker = L.marker([occurrence.decimalLatitude, occurrence.decimalLongitude])
+        .bindPopup(markerPopupContent);
+    markers.push(marker);
+    marker.addTo(map);
+});
 }
 
 
