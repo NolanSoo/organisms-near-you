@@ -111,22 +111,30 @@ async function fetchWikipediaSnippet(query) {
             const parseData = await parseResponse.json();
             console.log('Parsed Wikipedia page response:', parseData); // Debug log
 
-            const htmlContent = parseData.parse.text['*']; // Adjusted property access for HTML content
+            const htmlContent = parseData.parse.text['*']; // Ensure correct access to HTML content
+            if (!htmlContent) {
+                throw new Error('No HTML content found');
+            }
+
             const div = document.createElement('div');
             div.innerHTML = htmlContent;
 
             // Remove HTML tags
             const textContent = div.textContent || div.innerText || '';
 
-            // Split text into sentences and filter out irrelevant sections
-            const sentences = textContent.split('. ').map(sentence => sentence.trim()).filter(sentence => sentence.length > 0);
+            // Split text into sentences and clean up
+            const sentences = textContent.split(/(?<=[.!?])\s+/).map(sentence => sentence.trim()).filter(sentence => sentence.length > 0);
+
+            if (sentences.length === 0) {
+                return { snippet: 'No meaningful content found', link: `https://en.wikipedia.org/?curid=${pageId}` };
+            }
 
             // Find the start of the relevant content (after species part)
             const speciesIndex = sentences.findIndex(sentence => sentence.toLowerCase().includes('sponges') || sentence.toLowerCase().includes('sponge'));
-            const relevantSentences = sentences.slice(speciesIndex + 1, speciesIndex + 4);
+            const relevantSentences = speciesIndex >= 0 ? sentences.slice(speciesIndex + 1, speciesIndex + 4) : sentences.slice(0, 3);
 
             // Join sentences to form the snippet
-            let snippet = relevantSentences.join('. ');
+            let snippet = relevantSentences.join(' ');
             if (!snippet.endsWith('.')) snippet += '.';
 
             const wikiLink = `https://en.wikipedia.org/?curid=${pageId}`;
