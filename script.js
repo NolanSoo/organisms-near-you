@@ -209,17 +209,22 @@ async function fetchResultsForRandomLocation(lat, lon) {
     let snippetHtml = '';
     let wikiLink = '#'; // Default link if no Wikipedia entry is available
 
-   if (commonName == "No common name available") {
-    // Use scientific name if commonName is not available
+if (commonName == "No common name available" || commonName != "No common name available") {
+    // Always use scientific name for the Wikipedia search
     const result = await fetchWikipediaSnippet(occurrence.scientificName);
     snippetHtml = result.snippet ? `<div>${result.snippet}&hellip;</div>` : '';
     wikiLink = result.link || '#';
-} else {
-    // Use common name for the Wikipedia search
-    const result = await fetchWikipediaSnippet(commonName);
-    snippetHtml = result.snippet ? `<div>${result.snippet}&hellip;</div>` : '';
-    wikiLink = result.link || '#';
 }
+
+// Assuming you have latitude and longitude from the occurrence data
+const lat = occurrence.decimalLatitude;
+const lng = occurrence.decimalLongitude;
+
+// Center the map to the location without changing the zoom level
+if (lat && lng) {
+    map.setView([lat, lng], map.getZoom());
+}
+
 
 
     occurrenceDiv.innerHTML = `
@@ -351,17 +356,22 @@ async function fetchResults(lat = userLat, lon = userLon) {
     let snippetHtml = '';
     let wikiLink = '#'; // Default link if no Wikipedia entry is available
 
-  if (commonName == "No common name available") {
-    // Use scientific name if commonName is not available
+if (commonName == "No common name available" || commonName != "No common name available") {
+    // Always use scientific name for the Wikipedia search
     const result = await fetchWikipediaSnippet(occurrence.scientificName);
     snippetHtml = result.snippet ? `<div>${result.snippet}&hellip;</div>` : '';
     wikiLink = result.link || '#';
-} else {
-    // Use common name for the Wikipedia search
-    const result = await fetchWikipediaSnippet(commonName);
-    snippetHtml = result.snippet ? `<div>${result.snippet}&hellip;</div>` : '';
-    wikiLink = result.link || '#';
 }
+
+// Assuming you have latitude and longitude from the occurrence data
+const lat = occurrence.decimalLatitude;
+const lng = occurrence.decimalLongitude;
+
+// Center the map to the location without changing the zoom level
+if (lat && lng) {
+    map.setView([lat, lng], map.getZoom());
+}
+
 
 
 
