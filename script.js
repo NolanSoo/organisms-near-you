@@ -352,7 +352,7 @@ async function fetchResults(lat = userLat, lon = userLon) {
 
  if (commonName == 'No common name available') {
         // Use scientific name if commonName is not available
-        const result = await fetchWikipediaSnippet2(occurrence.scientificName);
+        const result = await fetchWikipediaSnippet(occurrence.scientificName);
         snippetHtml = result.snippet ? `<div>${result.snippet}</div>` : '';
         wikiLink = result.link || '#';
     } else {
