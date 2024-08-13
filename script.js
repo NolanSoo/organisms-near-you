@@ -257,6 +257,7 @@ async function fetchResultsForRandomLocation(lat, lon) {
         markers.push(marker);
         marker.addTo(map);
     });
+return true;
 }
 
 // Function to fetch results based on provided coordinates
@@ -404,6 +405,7 @@ async function fetchResults(lat = userLat, lon = userLon) {
         markers.push(marker);
         marker.addTo(map);
     });
+  return true;
 }
 // Function to generate random location and fetch results
 async function randomLocation() {
