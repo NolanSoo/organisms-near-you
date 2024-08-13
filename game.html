@@ -10,11 +10,12 @@
 </head>
 <body class="light-theme">
   <div class="controls">
-    <button><a href="index.html>Organisms Near You</a></button>
+    <a href="index.html" id="k"><button>Organisms Near You</button></a>
+    <br>
     <button id="startGame">Start Game</button>
     <br>
     <label for="europe">Only Europe</label>
-<input type="checkbox" id="europe" name="europe">
+    <input type="checkbox" id="europe" name="europe">
     <br>
     <p id="timerDisplay" style="display: none;">Timer: 0</p>
     <div id="imageContainer" style="display: none;"></div>
@@ -22,11 +23,12 @@
   </div>
   <div id="mapContainer" style="height: 60vh;"></div>
   <!-- Loading Screen Element -->
-    <div id="loadingScreen">
-        <img src="loading.gif" alt="Loading...">
-    </div>
+  <div id="loadingScreen">
+      <img src="loading.gif" alt="Loading...">
+  </div>
 
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script src="game.js"></script>
 </body>
 </html>
+
