@@ -64,6 +64,7 @@ function findLocationWithPicture() {
   const isUSAMode = document.getElementById('usa').checked;
 
   let latitudeRange, longRange;
+  let countryFilter = '';
 
   if (isAsiaMode) {
     latitudeRange = [11, 59];
@@ -71,6 +72,7 @@ function findLocationWithPicture() {
   } else if (isUSAMode) {
     latitudeRange = [26, 49];
     longRange = [-124, -68];
+    countryFilter = 'US';
   } else if (isEuropeMode) {
     latitudeRange = [37, 63];
     longRange = [-10, 36];
@@ -95,21 +97,15 @@ function findLocationWithPicture() {
 
   let url = `https://api.gbif.org/v1/occurrence/search?decimalLatitude=${latRange[0]},${latRange[1]}&decimalLongitude=${lonRange[0]},${lonRange[1]}&distance=${searchRadiusKm}&limit=1`;
   
-  if (isUSAMode) {
-    url += `&georeferenced=true`; // USA-specific filtering if needed
+  if (countryFilter) {
+    url += `&country=${countryFilter}`;
   }
 
   fetch(url)
     .then(response => response.json())
     .then(data => {
       console.log("Fetch response data:", data);
-      let validResults = data.results.filter(result => result.media && result.media.length > 0);
-
-      if (isUSAMode) {
-        validResults = validResults.filter(result => 
-          result.locality && (result.locality.includes('USA') || result.locality.includes('US') || result.locality.includes('United States'))
-        );
-      }
+      const validResults = data.results.filter(result => result.media && result.media.length > 0);
 
       if (validResults.length > 0) {
         console.log("Found valid result with media.");
@@ -129,7 +125,6 @@ function findLocationWithPicture() {
     })
     .catch(error => console.error("Error fetching data:", error));
 }
-
 function displayImage(imageUrl) {
   console.log("Displaying image:", imageUrl);
   const imageContainer = document.getElementById('imageContainer');
