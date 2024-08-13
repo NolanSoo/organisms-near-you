@@ -217,11 +217,11 @@ async function fetchResultsForRandomLocation(lat, lon) {
         let snippetHtml = '';
         let wikiLink = '#';
 
-        if (commonName !== "No common name available") {
-            const result = await fetchWikipediaSnippet(occurrence.scientificName);
-            snippetHtml = result.snippet ? `<div>${result.snippet}&hellip;</div>` : '';
-            wikiLink = result.link || '#';
-        }
+  
+        const result = await fetchWikipediaSnippet(occurrence.scientificName);
+        snippetHtml = result.snippet ? `<div>${result.snippet}&hellip;</div>` : '';
+        wikiLink = result.link || '#';
+
 
         const lat = occurrence.decimalLatitude;
         const lng = occurrence.decimalLongitude;
