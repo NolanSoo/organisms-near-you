@@ -10,6 +10,7 @@ let personalBest = parseInt(localStorage.getItem('personalBest')) || 0;
 
 const searchRadiusMiles = 50;
 const searchRadiusKm = searchRadiusMiles * 1.60934;
+let canClickMap = false;
 
 document.getElementById('startGame').addEventListener('click', startGame);
 
@@ -55,6 +56,7 @@ function startNewRound() {
   console.log(`Starting round ${currentRound + 1}`);
   currentRound++;
   toggleLoadingScreen(true); // Show loading screen while searching for a location
+  canClickMap = false; // Disable map clicking
   findLocationWithPicture();
 }
 
@@ -64,7 +66,6 @@ function findLocationWithPicture() {
   const isUSAMode = document.getElementById('usa').checked;
 
   let latitudeRange, longRange;
-  let countryFilter = '';
 
   if (isAsiaMode) {
     latitudeRange = [11, 59];
@@ -72,7 +73,6 @@ function findLocationWithPicture() {
   } else if (isUSAMode) {
     latitudeRange = [26, 49];
     longRange = [-124, -68];
-    countryFilter = 'US';
   } else if (isEuropeMode) {
     latitudeRange = [37, 63];
     longRange = [-10, 36];
@@ -97,15 +97,21 @@ function findLocationWithPicture() {
 
   let url = `https://api.gbif.org/v1/occurrence/search?decimalLatitude=${latRange[0]},${latRange[1]}&decimalLongitude=${lonRange[0]},${lonRange[1]}&distance=${searchRadiusKm}&limit=1`;
   
-  if (countryFilter) {
-    url += `&country=${countryFilter}`;
+  if (isUSAMode) {
+    url += `&georeferenced=true`; // USA-specific filtering if needed
   }
 
   fetch(url)
     .then(response => response.json())
     .then(data => {
       console.log("Fetch response data:", data);
-      const validResults = data.results.filter(result => result.media && result.media.length > 0);
+      let validResults = data.results.filter(result => result.media && result.media.length > 0);
+
+      if (isUSAMode) {
+        validResults = validResults.filter(result => 
+          result.locality && (result.locality.includes('USA') || result.locality.includes('US') || result.locality.includes('United States'))
+        );
+      }
 
       if (validResults.length > 0) {
         console.log("Found valid result with media.");
@@ -125,6 +131,7 @@ function findLocationWithPicture() {
     })
     .catch(error => console.error("Error fetching data:", error));
 }
+
 function displayImage(imageUrl) {
   console.log("Displaying image:", imageUrl);
   const imageContainer = document.getElementById('imageContainer');
@@ -162,13 +169,13 @@ function displayWikipediaInfo(title, snippet) {
 
   document.getElementById('nextButton').addEventListener('click', () => {
     infoContainer.style.display = 'none';
-    findLocationWithPicture(); // Fetch a new image in the same round
+    canClickMap = true; // Allow map clicking
   });
 }
 
 function handleMapClick(e) {
-  if (!gameInProgress || !correctLocation) {
-    console.log("Game not in progress or no correct location.");
+  if (!gameInProgress || !correctLocation || !canClickMap) {
+    console.log("Game not in progress, no correct location, or map clicking disabled.");
     return;
   }
 
@@ -200,6 +207,13 @@ function handleMapClick(e) {
     .openOn(map);
 
   updateScoreDisplay();
+
+  if (currentRound >= 4) {
+    endGame();
+  } else {
+    canClickMap = false; // Disable map clicking until the next round starts
+    startNewRound();
+  }
 }
 
 function calculateScore(distance, isEuropeMode) {
@@ -231,12 +245,12 @@ function endGame() {
 }
 
 function toggleLoadingScreen(show) {
-    const loadingScreen = document.getElementById('loadingScreen');
-    if (loadingScreen) {
-        loadingScreen.style.display = show ? 'flex' : 'none';
-    } else {
-        console.error("Loading screen element not found.");
-    }
+  const loadingScreen = document.getElementById('loadingScreen');
+  if (loadingScreen) {
+    loadingScreen.style.display = show ? 'flex' : 'none';
+  } else {
+    console.error("Loading screen element not found.");
+  }
 }
 
 initializeMap();
