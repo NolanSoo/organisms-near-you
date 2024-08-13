@@ -14,6 +14,7 @@ const latitudeRange = [-50, 60]; // Latitude range (50°S to 60°N)
 const longitudeRange = [-130, 160]; // Full longitude range
 
 document.getElementById('startGame').addEventListener('click', startGame);
+document.getElementById('nextImage').addEventListener('click', nextImage);
 
 function initializeMap() {
   console.log("Initializing map...");
@@ -107,6 +108,9 @@ function displayImage(imageUrl) {
   const imageContainer = document.getElementById('imageContainer');
   imageContainer.innerHTML = `<img src="${imageUrl}" alt="Location Image" style="width: 100%; height: auto;">`;
   imageContainer.style.display = 'block';
+  
+  // Display Wikipedia info
+  fetchWikipediaInfo();
 }
 
 function handleMapClick(e) {
@@ -143,12 +147,6 @@ function handleMapClick(e) {
     .openOn(map);
 
   updateScoreDisplay();
-
-  if (currentRound >= 4) {
-    endGame();
-  } else {
-    startNewRound();
-  }
 }
 
 function calculateScore(distance, isEuropeMode) {
@@ -158,7 +156,6 @@ function calculateScore(distance, isEuropeMode) {
   if (distance > maxDistanceForPoints) return 0;
   return Math.round(5000 - (distance * scoreCoefficient));
 }
-
 
 function updateScoreDisplay() {
   console.log(`Updating score display. Session Score: ${Math.round(sessionScore)}, Session Best: ${Math.round(sessionBest)}, Personal Best: ${Math.round(personalBest)}`);
@@ -181,13 +178,41 @@ function endGame() {
 }
 
 function toggleLoadingScreen(show) {
-    const loadingScreen = document.getElementById('loadingScreen');
-    if (loadingScreen) {
-        loadingScreen.style.display = show ? 'flex' : 'none';
-    } else {
-        console.error("Loading screen element not found.");
-    }
+  const loadingScreen = document.getElementById('loadingScreen');
+  if (loadingScreen) {
+    loadingScreen.style.display = show ? 'flex' : 'none';
+  } else {
+    console.error("Loading screen element not found.");
+  }
 }
 
+function fetchWikipediaInfo() {
+  const apiUrl = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(correctLocation.media)}`;
+  fetch(apiUrl)
+    .then(response => response.json())
+    .then(data => {
+      const snippet = data.extract;
+      const pageTitle = data.title;
+      const pageUrl = `https://en.wikipedia.org/wiki/${encodeURIComponent(pageTitle)}`;
+      displayWikipediaInfo(pageUrl, snippet);
+    })
+    .catch(error => console.error("Error fetching Wikipedia info:", error));
+}
+
+function displayWikipediaInfo(url, snippet) {
+  const infoContainer = document.getElementById('infoContainer');
+  infoContainer.innerHTML = `
+    <h3>More about the creature:</h3>
+    <a href="${url}" target="_blank">${url}</a>
+    <p>${snippet}</p>
+  `;
+  infoContainer.style.display = 'block';
+}
+
+function nextImage() {
+  // Fetch a new image for the current round
+  findLocationWithPicture();
+}
 
 initializeMap();
+
