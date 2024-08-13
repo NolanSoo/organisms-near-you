@@ -200,11 +200,15 @@ async function fetchResultsForRandomLocation(lat, lon) {
         const distanceInKm = (occurrence.distance / 1000).toFixed(2);
         const distanceInMiles = (occurrence.distance / 1609.34).toFixed(2);
         const link = occurrence.references && occurrence.references.length > 0 ? occurrence.references[0] : '#';
-
-        // Fetch Wikipedia snippet
-        const { snippet, link: wikiLink } = await fetchWikipediaSnippet(commonName);
-
-        const snippetHtml = `<div>${snippet}</div>`;
+        if (!commonName) {
+          //  Use scientific name if commonName is not available
+          const { snippet, link: wikiLink } = await fetchWikipediaSnippet(occurrence.scientificName);
+          snippetHtml = `<div>${snippet}</div>`;
+        } else {
+          // Use common name for the Wikipedia search
+          const { snippet, link: wikiLink } = await fetchWikipediaSnippet(commonName);
+          snippetHtml = `<div>${snippet}</div>`;
+        }
 
         occurrenceDiv.innerHTML = `
             <strong>${commonName}</strong><br>
