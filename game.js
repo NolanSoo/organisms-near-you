@@ -10,7 +10,6 @@ let personalBest = parseInt(localStorage.getItem('personalBest')) || 0;
 
 const searchRadiusMiles = 50;
 const searchRadiusKm = searchRadiusMiles * 1.60934;
-let canClickMap = false;
 
 document.getElementById('startGame').addEventListener('click', startGame);
 
@@ -48,7 +47,7 @@ function startGame() {
 
 function startNewRound() {
   if (currentRound >= 4) {
-    console.log("Ending game after 4 rounds.");
+    console.log(`Ending game after 4 rounds.`);
     endGame();
     return;
   }
@@ -56,7 +55,6 @@ function startNewRound() {
   console.log(`Starting round ${currentRound + 1}`);
   currentRound++;
   toggleLoadingScreen(true); // Show loading screen while searching for a location
-  canClickMap = false; // Disable map clicking
   findLocationWithPicture();
 }
 
@@ -66,6 +64,7 @@ function findLocationWithPicture() {
   const isUSAMode = document.getElementById('usa').checked;
 
   let latitudeRange, longRange;
+  let countryFilter = '';
 
   if (isAsiaMode) {
     latitudeRange = [11, 59];
@@ -73,6 +72,7 @@ function findLocationWithPicture() {
   } else if (isUSAMode) {
     latitudeRange = [26, 49];
     longRange = [-124, -68];
+    countryFilter = 'US';
   } else if (isEuropeMode) {
     latitudeRange = [37, 63];
     longRange = [-10, 36];
@@ -97,8 +97,8 @@ function findLocationWithPicture() {
 
   let url = `https://api.gbif.org/v1/occurrence/search?decimalLatitude=${latRange[0]},${latRange[1]}&decimalLongitude=${lonRange[0]},${lonRange[1]}&distance=${searchRadiusKm}&limit=1`;
   
-  if (isUSAMode) {
-    url += `&georeferenced=true`; // USA-specific filtering if needed
+  if (countryFilter) {
+    url += `&country=${countryFilter}`;
   }
 
   fetch(url)
@@ -107,10 +107,9 @@ function findLocationWithPicture() {
       console.log("Fetch response data:", data);
       let validResults = data.results.filter(result => result.media && result.media.length > 0);
 
+      // Additional filter for USA mode
       if (isUSAMode) {
-        validResults = validResults.filter(result => 
-          result.locality && (result.locality.includes('USA') || result.locality.includes('US') || result.locality.includes('United States'))
-        );
+        validResults = validResults.filter(result => result.country === 'US');
       }
 
       if (validResults.length > 0) {
@@ -118,12 +117,10 @@ function findLocationWithPicture() {
         correctLocation = {
           lat: validResults[0].decimalLatitude,
           lon: validResults[0].decimalLongitude,
-          media: validResults[0].media[0].identifier,
-          name: validResults[0].species // Or another property if available
+          media: validResults[0].media[0].identifier
         };
         toggleLoadingScreen(false); // Hide loading screen when image is ready
         displayImage(correctLocation.media);
-        fetchWikipediaSnippet(correctLocation.name);
       } else {
         console.log("No valid results found. Retrying...");
         setTimeout(findLocationWithPicture, 3000);
@@ -139,43 +136,9 @@ function displayImage(imageUrl) {
   imageContainer.style.display = 'block';
 }
 
-function fetchWikipediaSnippet(title) {
-  const apiUrl = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`;
-  
-  fetch(apiUrl)
-    .then(response => response.json())
-    .then(data => {
-      if (data && data.extract) {
-        displayWikipediaInfo(data.title, data.extract);
-      } else {
-        displayWikipediaInfo("No information available", "Sorry, no information was found for this location.");
-      }
-    })
-    .catch(error => {
-      console.error("Error fetching Wikipedia data:", error);
-      displayWikipediaInfo("Error", "There was an error fetching Wikipedia data.");
-    });
-}
-
-function displayWikipediaInfo(title, snippet) {
-  const infoContainer = document.getElementById('infoContainer');
-  infoContainer.innerHTML = `
-    <h2>${title}</h2>
-    <p>${snippet}</p>
-    <a href="https://en.wikipedia.org/wiki/${encodeURIComponent(title)}" target="_blank">Read more on Wikipedia</a>
-    <button id="nextButton">Next</button>
-  `;
-  infoContainer.style.display = 'block';
-
-  document.getElementById('nextButton').addEventListener('click', () => {
-    infoContainer.style.display = 'none';
-    canClickMap = true; // Allow map clicking
-  });
-}
-
 function handleMapClick(e) {
-  if (!gameInProgress || !correctLocation || !canClickMap) {
-    console.log("Game not in progress, no correct location, or map clicking disabled.");
+  if (!gameInProgress || !correctLocation) {
+    console.log("Game not in progress or no correct location.");
     return;
   }
 
@@ -211,7 +174,6 @@ function handleMapClick(e) {
   if (currentRound >= 4) {
     endGame();
   } else {
-    canClickMap = false; // Disable map clicking until the next round starts
     startNewRound();
   }
 }
@@ -245,12 +207,12 @@ function endGame() {
 }
 
 function toggleLoadingScreen(show) {
-  const loadingScreen = document.getElementById('loadingScreen');
-  if (loadingScreen) {
-    loadingScreen.style.display = show ? 'flex' : 'none';
-  } else {
-    console.error("Loading screen element not found.");
-  }
+    const loadingScreen = document.getElementById('loadingScreen');
+    if (loadingScreen) {
+        loadingScreen.style.display = show ? 'flex' : 'none';
+    } else {
+        console.error("Loading screen element not found.");
+    }
 }
 
 initializeMap();
