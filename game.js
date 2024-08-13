@@ -10,8 +10,6 @@ let personalBest = parseInt(localStorage.getItem('personalBest')) || 0;
 
 const searchRadiusMiles = 50;
 const searchRadiusKm = searchRadiusMiles * 1.60934;
-const latitudeRange = [-50, 60]; // Latitude range (50°S to 60°N)
-const longitudeRange = [-130, 160]; // Full longitude range
 
 document.getElementById('startGame').addEventListener('click', startGame);
 
@@ -62,10 +60,27 @@ function startNewRound() {
 
 function findLocationWithPicture() {
   const isEuropeMode = document.getElementById('europe').checked;
-  const latitudeRange = isEuropeMode ? [37, 63] : [-50, 60];
-  const longRange = isEuropeMode ? [-10, 36] : [-130, 160];
+  const isAsiaMode = document.getElementById('asia').checked;
+  const isUSAMode = document.getElementById('usa').checked;
+
+  let latitudeRange, longRange;
+
+  if (isAsiaMode) {
+    latitudeRange = [11, 59];
+    longRange = [43, 120];
+  } else if (isUSAMode) {
+    latitudeRange = [26, 49];
+    longRange = [-124, -68];
+  } else if (isEuropeMode) {
+    latitudeRange = [37, 63];
+    longRange = [-10, 36];
+  } else {
+    latitudeRange = [-50, 60];
+    longRange = [-130, 160];
+  }
+
   const baseLat = Math.random() * (latitudeRange[1] - latitudeRange[0]) + latitudeRange[0]; 
-  const baseLon = Math.random() * (longRange[1] - longRange[0]) + longRange[0]; // Latitude between 50°S and 60°N
+  const baseLon = Math.random() * (longRange[1] - longRange[0]) + longRange[0]; 
   console.log(`Searching for location with coordinates around: ${baseLat}, ${baseLon}`);
 
   const latRange = [baseLat - 0.05, baseLat + 0.05];
@@ -78,22 +93,35 @@ function findLocationWithPicture() {
     map.removeLayer(userLocationMarker);
   }
 
-  const url = `https://api.gbif.org/v1/occurrence/search?decimalLatitude=${latRange[0]},${latRange[1]}&decimalLongitude=${lonRange[0]},${lonRange[1]}&distance=${searchRadiusKm}&limit=1`;
+  let url = `https://api.gbif.org/v1/occurrence/search?decimalLatitude=${latRange[0]},${latRange[1]}&decimalLongitude=${lonRange[0]},${lonRange[1]}&distance=${searchRadiusKm}&limit=1`;
+  
+  if (isUSAMode) {
+    url += `&georeferenced=true`; // USA-specific filtering if needed
+  }
 
   fetch(url)
     .then(response => response.json())
     .then(data => {
       console.log("Fetch response data:", data);
-      const validResults = data.results.filter(result => result.media && result.media.length > 0);
+      let validResults = data.results.filter(result => result.media && result.media.length > 0);
+
+      if (isUSAMode) {
+        validResults = validResults.filter(result => 
+          result.locality && (result.locality.includes('USA') || result.locality.includes('US') || result.locality.includes('United States'))
+        );
+      }
+
       if (validResults.length > 0) {
         console.log("Found valid result with media.");
         correctLocation = {
           lat: validResults[0].decimalLatitude,
           lon: validResults[0].decimalLongitude,
-          media: validResults[0].media[0].identifier
+          media: validResults[0].media[0].identifier,
+          name: validResults[0].species // Or another property if available
         };
         toggleLoadingScreen(false); // Hide loading screen when image is ready
         displayImage(correctLocation.media);
+        fetchWikipediaSnippet(correctLocation.name);
       } else {
         console.log("No valid results found. Retrying...");
         setTimeout(findLocationWithPicture, 3000);
@@ -107,6 +135,40 @@ function displayImage(imageUrl) {
   const imageContainer = document.getElementById('imageContainer');
   imageContainer.innerHTML = `<img src="${imageUrl}" alt="Location Image" style="width: 100%; height: auto;">`;
   imageContainer.style.display = 'block';
+}
+
+function fetchWikipediaSnippet(title) {
+  const apiUrl = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`;
+  
+  fetch(apiUrl)
+    .then(response => response.json())
+    .then(data => {
+      if (data && data.extract) {
+        displayWikipediaInfo(data.title, data.extract);
+      } else {
+        displayWikipediaInfo("No information available", "Sorry, no information was found for this location.");
+      }
+    })
+    .catch(error => {
+      console.error("Error fetching Wikipedia data:", error);
+      displayWikipediaInfo("Error", "There was an error fetching Wikipedia data.");
+    });
+}
+
+function displayWikipediaInfo(title, snippet) {
+  const infoContainer = document.getElementById('infoContainer');
+  infoContainer.innerHTML = `
+    <h2>${title}</h2>
+    <p>${snippet}</p>
+    <a href="https://en.wikipedia.org/wiki/${encodeURIComponent(title)}" target="_blank">Read more on Wikipedia</a>
+    <button id="nextButton">Next</button>
+  `;
+  infoContainer.style.display = 'block';
+
+  document.getElementById('nextButton').addEventListener('click', () => {
+    infoContainer.style.display = 'none';
+    findLocationWithPicture(); // Fetch a new image in the same round
+  });
 }
 
 function handleMapClick(e) {
@@ -143,12 +205,6 @@ function handleMapClick(e) {
     .openOn(map);
 
   updateScoreDisplay();
-
-  if (currentRound >= 4) {
-    endGame();
-  } else {
-    startNewRound();
-  }
 }
 
 function calculateScore(distance, isEuropeMode) {
@@ -158,7 +214,6 @@ function calculateScore(distance, isEuropeMode) {
   if (distance > maxDistanceForPoints) return 0;
   return Math.round(5000 - (distance * scoreCoefficient));
 }
-
 
 function updateScoreDisplay() {
   console.log(`Updating score display. Session Score: ${Math.round(sessionScore)}, Session Best: ${Math.round(sessionBest)}, Personal Best: ${Math.round(personalBest)}`);
@@ -188,6 +243,5 @@ function toggleLoadingScreen(show) {
         console.error("Loading screen element not found.");
     }
 }
-
 
 initializeMap();
