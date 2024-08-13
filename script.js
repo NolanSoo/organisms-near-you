@@ -191,7 +191,7 @@ async function fetchResultsForRandomLocation(lat, lon) {
 
     occurrences.sort((a, b) => a.occurrence.distance - b.occurrence.distance);
 
-   occurrences.forEach(async ({ occurrence, commonName, scientificName }) => {
+   occurrences.forEach(async ({ occurrence, commonName }) => {
     const occurrenceDiv = document.createElement('div');
     occurrenceDiv.className = 'occurrence';
 
@@ -201,34 +201,36 @@ async function fetchResultsForRandomLocation(lat, lon) {
     const distanceInMiles = (occurrence.distance / 1609.34).toFixed(2);
     const link = occurrence.references && occurrence.references.length > 0 ? occurrence.references[0] : '#';
 
-    // Determine the name to use for Wikipedia search
-    const nameForWikipedia = commonName || scientificName;
+    let snippetHtml = '';
+    let wikiLink = '';
 
-    // Fetch Wikipedia snippet
-    const { snippet, link: wikiLink } = await fetchWikipediaSnippet(nameForWikipedia);
-
-    const snippetHtml = `<div>${snippet}</div>`;
+    if (commonName) {
+        // Fetch Wikipedia snippet
+        const { snippet, link: fetchedWikiLink } = await fetchWikipediaSnippet(commonName);
+        snippetHtml = `<div>${snippet}</div>`;
+        wikiLink = fetchedWikiLink;
+    }
 
     occurrenceDiv.innerHTML = `
-        <strong>${commonName || scientificName}</strong><br>
-        <em>${scientificName}</em><br>
+        <strong>${commonName || 'Common name not available'}</strong><br>
+        <em>${occurrence.scientificName}</em><br>
         <strong>Locality:</strong> ${locality}<br>
         <strong>Distance:</strong> ${distanceInKm} km / ${distanceInMiles} miles<br>
-        <a href="${wikiLink}" target="_blank">Wikipedia</a><br>
+        ${wikiLink ? `<a href="${wikiLink}" target="_blank">Wikipedia</a><br>` : ''}
         ${snippetHtml}
-        ${speciesImage ? `<img src="${speciesImage}" alt="${commonName || scientificName}" class="species-image">` : ''}
+        ${speciesImage ? `<img src="${speciesImage}" alt="${commonName || 'Image not available'}" class="species-image">` : ''}
     `;
 
     listContainer.appendChild(occurrenceDiv);
 
     const markerPopupContent = `
-        <strong>${commonName || scientificName}</strong><br>
-        <em>${scientificName}</em><br>
+        <strong>${commonName || 'Common name not available'}</strong><br>
+        <em>${occurrence.scientificName}</em><br>
         <strong>Locality:</strong> ${locality}<br>
         <strong>Distance:</strong> ${distanceInKm} km / ${distanceInMiles} miles<br>
-        <a href="${wikiLink}" target="_blank">Wikipedia</a><br>
+        ${wikiLink ? `<a href="${wikiLink}" target="_blank">Wikipedia</a><br>` : ''}
         ${snippetHtml}
-        ${speciesImage ? `<img src="${speciesImage}" alt="${commonName || scientificName}" class="species-image">` : ''}
+        ${speciesImage ? `<img src="${speciesImage}" alt="${commonName || 'Image not available'}" class="species-image">` : ''}
     `;
 
     const marker = L.marker([occurrence.decimalLatitude, occurrence.decimalLongitude])
@@ -236,6 +238,7 @@ async function fetchResultsForRandomLocation(lat, lon) {
     markers.push(marker);
     marker.addTo(map);
 });
+
 
     return true; // Indicate that results were found
 }
@@ -324,7 +327,7 @@ async function fetchResults(lat = userLat, lon = userLon) {
 
     occurrences.sort((a, b) => a.occurrence.distance - b.occurrence.distance);
 
-   occurrences.forEach(async ({ occurrence, commonName, scientificName }) => {
+   occurrences.forEach(async ({ occurrence, commonName }) => {
     const occurrenceDiv = document.createElement('div');
     occurrenceDiv.className = 'occurrence';
 
@@ -334,34 +337,36 @@ async function fetchResults(lat = userLat, lon = userLon) {
     const distanceInMiles = (occurrence.distance / 1609.34).toFixed(2);
     const link = occurrence.references && occurrence.references.length > 0 ? occurrence.references[0] : '#';
 
-    // Determine the name to use for Wikipedia search
-    const nameForWikipedia = commonName || scientificName;
+    let snippetHtml = '';
+    let wikiLink = '';
 
-    // Fetch Wikipedia snippet
-    const { snippet, link: wikiLink } = await fetchWikipediaSnippet(nameForWikipedia);
-
-    const snippetHtml = `<div>${snippet}</div>`;
+    if (commonName) {
+        // Fetch Wikipedia snippet
+        const { snippet, link: fetchedWikiLink } = await fetchWikipediaSnippet(commonName);
+        snippetHtml = `<div>${snippet}</div>`;
+        wikiLink = fetchedWikiLink;
+    }
 
     occurrenceDiv.innerHTML = `
-        <strong>${commonName || scientificName}</strong><br>
-        <em>${scientificName}</em><br>
+        <strong>${commonName || 'Common name not available'}</strong><br>
+        <em>${occurrence.scientificName}</em><br>
         <strong>Locality:</strong> ${locality}<br>
         <strong>Distance:</strong> ${distanceInKm} km / ${distanceInMiles} miles<br>
-        <a href="${wikiLink}" target="_blank">Wikipedia</a><br>
+        ${wikiLink ? `<a href="${wikiLink}" target="_blank">Wikipedia</a><br>` : ''}
         ${snippetHtml}
-        ${speciesImage ? `<img src="${speciesImage}" alt="${commonName || scientificName}" class="species-image">` : ''}
+        ${speciesImage ? `<img src="${speciesImage}" alt="${commonName || 'Image not available'}" class="species-image">` : ''}
     `;
 
     listContainer.appendChild(occurrenceDiv);
 
     const markerPopupContent = `
-        <strong>${commonName || scientificName}</strong><br>
-        <em>${scientificName}</em><br>
+        <strong>${commonName || 'Common name not available'}</strong><br>
+        <em>${occurrence.scientificName}</em><br>
         <strong>Locality:</strong> ${locality}<br>
         <strong>Distance:</strong> ${distanceInKm} km / ${distanceInMiles} miles<br>
-        <a href="${wikiLink}" target="_blank">Wikipedia</a><br>
+        ${wikiLink ? `<a href="${wikiLink}" target="_blank">Wikipedia</a><br>` : ''}
         ${snippetHtml}
-        ${speciesImage ? `<img src="${speciesImage}" alt="${commonName || scientificName}" class="species-image">` : ''}
+        ${speciesImage ? `<img src="${speciesImage}" alt="${commonName || 'Image not available'}" class="species-image">` : ''}
     `;
 
     const marker = L.marker([occurrence.decimalLatitude, occurrence.decimalLongitude])
@@ -369,6 +374,7 @@ async function fetchResults(lat = userLat, lon = userLon) {
     markers.push(marker);
     marker.addTo(map);
 });
+
 }
 // Function to generate random location and fetch results
 async function randomLocation() {
