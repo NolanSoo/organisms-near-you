@@ -85,57 +85,53 @@ async function getCommonNameAndKingdom(taxonKey) {
 // Function to fetch Wikipedia snippet for a given common name or scientific name
 async function fetchWikipediaSnippet(query) {
     const searchUrl = `https://en.wikipedia.org/w/api.php?action=query&format=json&list=search&formatversion=2&srsearch=${encodeURIComponent(query)}&srlimit=1&origin=*`;
-    
+
     try {
         console.log(`Fetching Wikipedia snippet for query: ${query}`); // Debug log
 
-        // Fetch the search results
         const searchResponse = await fetch(searchUrl);
         if (!searchResponse.ok) {
             throw new Error(`HTTP error! status: ${searchResponse.status}`);
         }
 
         const searchData = await searchResponse.json();
-        console.log('Wikipedia API search response:', searchData); // Debug log
+        console.log('Wikipedia API response:', searchData); // Debug log
 
         if (searchData.query.search.length > 0) {
-            const pageTitle = searchData.query.search[0].title;
-            const pageId = searchData.query.search[0].pageid;
-            const pageUrl = `https://en.wikipedia.org/w/api.php?action=parse&format=json&page=${encodeURIComponent(pageTitle)}&prop=text&formatversion=2&origin=*`;
+            const page = searchData.query.search[0];
+            const pageId = page.pageid;
+            const title = page.title;
+            const parseUrl = `https://en.wikipedia.org/w/api.php?action=parse&format=json&page=${encodeURIComponent(title)}&prop=text&formatversion=2&origin=*`;
 
-            // Fetch the page content
-            const pageResponse = await fetch(pageUrl);
-            if (!pageResponse.ok) {
-                throw new Error(`HTTP error! status: ${pageResponse.status}`);
+            const parseResponse = await fetch(parseUrl);
+            if (!parseResponse.ok) {
+                throw new Error(`HTTP error! status: ${parseResponse.status}`);
             }
 
-            const pageData = await pageResponse.json();
-            console.log('Wikipedia API page response:', pageData); // Debug log
+            const parseData = await parseResponse.json();
+            console.log('Parsed Wikipedia page response:', parseData); // Debug log
 
-            if (pageData.parse && pageData.parse.text && pageData.parse.text['*']) {
-                let htmlContent = pageData.parse.text['*'];
+            const htmlContent = parseData.parse.text['*']; // Adjusted property access for HTML content
+            const div = document.createElement('div');
+            div.innerHTML = htmlContent;
 
-                // Extract the main content from the HTML
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(htmlContent, 'text/html');
-                let textContent = doc.querySelector('.mw-parser-output')?.textContent || '';
+            // Remove HTML tags
+            const textContent = div.textContent || div.innerText || '';
 
-                // Remove taxonomy details by splitting at the section headers
-                const splitPoint = textContent.indexOf('Scientific classification');
-                if (splitPoint !== -1) {
-                    textContent = textContent.substring(0, splitPoint);
-                }
+            // Split text into sentences and filter out irrelevant sections
+            const sentences = textContent.split('. ').map(sentence => sentence.trim()).filter(sentence => sentence.length > 0);
 
-                // Limit to the first 3 sentences
-                const sentences = textContent.match(/[^.!?]+[.!?]*/g) || [];
-                const snippet = sentences.slice(0, 3).join(' ').trim();
+            // Find the start of the relevant content (after species part)
+            const speciesIndex = sentences.findIndex(sentence => sentence.toLowerCase().includes('sponges') || sentence.toLowerCase().includes('sponge'));
+            const relevantSentences = sentences.slice(speciesIndex + 1, speciesIndex + 4);
 
-                // Return snippet and wiki link
-                const wikiLink = `https://en.wikipedia.org/?curid=${pageId}`;
-                return { snippet: snippet || 'No snippet available', link: wikiLink };
-            } else {
-                return { snippet: 'No snippet available', link: '#' };
-            }
+            // Join sentences to form the snippet
+            let snippet = relevantSentences.join('. ');
+            if (!snippet.endsWith('.')) snippet += '.';
+
+            const wikiLink = `https://en.wikipedia.org/?curid=${pageId}`;
+            return { snippet, link: wikiLink };
+
         } else {
             return { snippet: 'No snippet available', link: '#' };
         }
@@ -144,6 +140,7 @@ async function fetchWikipediaSnippet(query) {
         return { snippet: 'Error fetching snippet', link: '#' };
     }
 }
+
 
   
 
