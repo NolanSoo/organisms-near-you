@@ -54,7 +54,7 @@ function startGame() {
   startNewRound();
 }
 
-function startNewRound() {
+function startNewRound(score) {
   if (currentRound >= 4) {
     console.log("Ending game after 4 rounds.");
     endGame();
@@ -63,7 +63,7 @@ function startNewRound() {
 
   console.log(`Starting round ${currentRound + 1}`);
   currentRound++;
-  toggleLoadingScreen(true); // Show loading screen while searching for a location
+  toggleLoadingScreen(true, score); // Show loading screen while searching for a location
   findLocationWithPicture();
 }
 
@@ -167,7 +167,7 @@ function handleMapClick(e) {
   if (currentRound >= 4) {
     endGame();
   } else {
-    startNewRound();
+    startNewRound(score);
   }
 }
 
