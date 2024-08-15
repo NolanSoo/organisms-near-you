@@ -12,6 +12,13 @@ const searchRadiusMiles = 50;
 const searchRadiusKm = searchRadiusMiles * 1.60934;
 const latitudeRange = [-50, 60]; // Latitude range (50°S to 60°N)
 const longitudeRange = [-130, 160]; // Full longitude range
+const memeImages = {
+  low: ["lowscore1.jpg", "lowscore2.jpg"], // 0-499 pts
+  mid: ["midscore1.jpg", "mid2.gif"], // 500-2499 pts
+  high: ["high.jpg", "high2.jpg"], // 2500-4399 pts
+  top: ["top.jpg", "top2.png"] // 4400-5000 pts
+};
+
 
 document.getElementById('startGame').addEventListener('click', startGame);
 
@@ -192,10 +199,36 @@ function endGame() {
   alert(`Game Over! Your session score: ${Math.round(sessionScore)}. Click "Start New Game" to play again.`);
 }
 
-function toggleLoadingScreen(show) {
+function toggleLoadingScreen(show, score = null) {
   const loadingScreen = document.getElementById('loadingScreen');
+  const memeCheck = document.getElementById('memeCheck').checked;
+
   if (loadingScreen) {
-    loadingScreen.style.display = show ? 'flex' : 'none';
+    if (show) {
+      if (!memeCheck || score === null) {
+        // Use default loading gif if memeCheck is not checked or for the first round
+        loadingScreen.innerHTML = `<img src="loading.gif" alt="Loading" style="width: 100%; height: auto;">`;
+      } else {
+        // Meme check is on, display meme based on score
+        let memeCategory;
+
+        if (score <= 499) {
+          memeCategory = memeImages.low;
+        } else if (score <= 2499) {
+          memeCategory = memeImages.mid;
+        } else if (score <= 4099) {
+          memeCategory = memeImages.high;
+        } else {
+          memeCategory = memeImages.top;
+        }
+
+        const randomMeme = memeCategory[Math.floor(Math.random() * memeCategory.length)];
+        loadingScreen.innerHTML = `<img src="${randomMeme}" alt="Meme" style="width: 100%; height: auto;">`;
+      }
+      loadingScreen.style.display = 'flex';
+    } else {
+      loadingScreen.style.display = 'none';
+    }
   } else {
     console.error("Loading screen element not found.");
   }
