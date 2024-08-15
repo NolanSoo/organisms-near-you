@@ -1,49 +1,66 @@
-
-<html>
-  <head>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
-  </head>
-  <body>
-
-  	Make sure to run this via a server
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GBIF Data Display</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link href="style.css" rel="stylesheet" type="text/css" />
+<h2>Organisms Near You</h2>
+</head>
+<body class="light-theme">
+  <div class="controls">
+    <button onclick="changeTheme()">Change Theme</button>
     <br>
-    <input accept="image/*" type='file' id="input_button" />
-
-  	<br>
-    <img id="img1" src="./image.jpg" style="width: 300px " />
-    <br>  <br>
-    <button   onclick="predict()">predict</button>
+    <label for="distance">Distance:</label>
+    <input type="number" id="distance" step="any" placeholder="Enter distance">
+    <select id="distanceUnit">
+      <option value="miles">Miles</option>
+      <option value="kilometers">Kilometers</option>
+    </select>
     <br>
-    <p id="result"> </p>
+    <label for="results">Number of results:</label>
+    <input type="number" id="results" step="1" min="1" placeholder="Enter number of results (default 10)">
+    <br>
+    <label for="address">Address:</label>
+    <input type="text" id="address" placeholder="Enter address">
+    <br>
+    <label for="kingdomFilter">Filter by Kingdom:</label>
+    <select id="kingdomFilter">
+      <option value="all">All</option>
+      <option value="Animalia">Animalia</option>
+      <option value="Plantae">Plantae</option>
+      <option value="Fungi">Fungi</option>
+    </select>
+   <br>
+    <select id="monthSelector">
+  <option value="all">All Months</option>
+  <option value="1">January</option>
+  <option value="2">February</option>
+  <option value="3">March</option>
+  <option value="4">April</option>
+  <option value="5">May</option>
+  <option value="6">June</option>
+  <option value="7">July</option>
+  <option value="8">August</option>
+  <option value="9">September</option>
+  <option value="10">October</option>
+  <option value="11">November</option>
+  <option value="12">December</option>
+</select>
+<br>
 
-    <script>
+    <p>Sometimes it can take up to 100 seconds for results to show.</p>
+    <button onclick="updateMap()">Update Map</button>
+    <button onclick="randomLocation()">Random Location</button>
+    <button><a href="game.html">Explore the World!</a></button>
+  </div>
+  <div id="mapContainer"></div>
+  <div id="listContainer"></div>
 
-      let image = document.getElementById('img1');
-      let input_button = document.getElementById('input_button');
-
-      input_button.onchange = evt => {
-        const [file] = input_button.files
-        if (file) {
-          image.src = URL.createObjectURL(file)
-        }
-      }
-
-      async function predict() {
-        var  model = await tf.loadGraphModel('./model.json');
-
-        let example = tf.browser.fromPixels(document.getElementById("img1") , 3 ).cast('float32');
-        console.log(  example.shape  )
-        example = example.reshape([1,example.shape[0], example.shape[1] ,example.shape[2]]);
-
-        let prediction = await model.predict(example);
-        let class_scores = await prediction.data();
-        let max_score_id =  class_scores.indexOf(Math.max(...class_scores));
-        let classes = [  "Destroyed" ,  "Strong" ,  ] ;
-
-        console.log(class_scores);
-        document.getElementById("result").innerHTML = classes[max_score_id].toString();
-      }
-    </script>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+  <script src="script.js"></script>
   </body>
 </html>
