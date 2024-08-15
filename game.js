@@ -104,13 +104,18 @@ function findLocationWithPicture() {
     .then(response => response.json())
     .then(data => {
       console.log("Fetch response data:", data);
-      const validResults = data.results.filter(result => result.media && result.media.length > 0);
+      const validResults = data.results.filter(result => 
+        result.media &&
+        result.media.length > 0 &&
+        result.media.some(mediaItem => mediaItem.type === 'StillImage')
+      );
+
       if (validResults.length > 0) {
-        console.log("Found valid result with media.");
+        console.log("Found valid result with StillImage.");
         correctLocation = {
           lat: validResults[0].decimalLatitude,
           lon: validResults[0].decimalLongitude,
-          media: validResults[0].media[0].identifier
+          media: validResults[0].media.find(mediaItem => mediaItem.type === 'StillImage').identifier
         };
         toggleLoadingScreen(false); // Hide loading screen when image is ready
         displayImage(correctLocation.media);
@@ -121,6 +126,7 @@ function findLocationWithPicture() {
     })
     .catch(error => console.error("Error fetching data:", error));
 }
+
 
 function displayImage(imageUrl) {
   console.log("Displaying image:", imageUrl);
