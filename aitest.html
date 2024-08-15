@@ -1,50 +1,117 @@
-
+<!DOCTYPE html>
 <html>
-  <head>
+<head>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
-    <link href="ai.css" rel="stylesheet" type="text/css" />
-  </head>
-  <body>
+    <style>
+        html {
+            height: 100%;
+            width: 100%;
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            transition: background-color 0.5s, color 0.5s;
+        }
+        .result-label {
+            display: inline-block;
+            width: 120px;
+            font-weight: bold;
+        }
+        .result-destroyed {
+            color: red;
+        }
+        .result-weak {
+            color: yellow;
+        }
+        .result-strong {
+            color: green;
+        }
+        #environmental-score {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
 
-  	Organisms Near You AI (Beta)
-
+    Organisms Near You AI (Beta)
     <br>
     <input accept="image/*" type='file' id="input_button" />
-
-  	<br>
+    <br>
     <img id="img1" src="top2.png" style="width: 300px " />
     <br>  <br>
-    <button   onclick="predict()">predict</button>
+    <button onclick="predict()">predict</button>
     <br>
-    <p id="result"> </p>
+    <p id="result">
+        <span class="result-label">Result:</span>
+        <span id="result-main"></span>
+    </p>
+    <p id="result2">
+        <span class="result-label">Destroyed %:</span>
+        <span id="result-destroyed"></span>
+    </p>
+    <p id="result3">
+        <span class="result-label">Weak %:</span>
+        <span id="result-weak"></span>
+    </p>
+    <p id="result4">
+        <span class="result-label">Strong %:</span>
+        <span id="result-strong"></span>
+    </p>
+    <p id="environmental-score"></p>
 
     <script>
+        let image = document.getElementById('img1');
+        let input_button = document.getElementById('input_button');
 
-      let image = document.getElementById('img1');
-      let input_button = document.getElementById('input_button');
-
-      input_button.onchange = evt => {
-        const [file] = input_button.files
-        if (file) {
-          image.src = URL.createObjectURL(file)
+        input_button.onchange = evt => {
+            const [file] = input_button.files
+            if (file) {
+                image.src = URL.createObjectURL(file)
+            }
         }
-      }
 
-      async function predict() {
-        var  model = await tf.loadGraphModel('./model.json');
+        async function predict() {
+            var model = await tf.loadGraphModel('./model.json');
 
-        let example = tf.browser.fromPixels(document.getElementById("img1") , 3 ).cast('float32');
-        console.log(  example.shape  )
-        example = example.reshape([1,example.shape[0], example.shape[1] ,example.shape[2]]);
+            let example = tf.browser.fromPixels(document.getElementById("img1"), 3).cast('float32');
+            example = example.reshape([1, example.shape[0], example.shape[1], example.shape[2]]);
 
-        let prediction = await model.predict(example);
-        let class_scores = await prediction.data();
-        let max_score_id =  class_scores.indexOf(Math.max(...class_scores));
-        let classes = [  "Destroyed" ,  "Strong" ,  ] ;
+            let prediction = await model.predict(example);
+            let class_scores = await prediction.data();
+            let max_score_id = class_scores.indexOf(Math.max(...class_scores));
+            let classes = ["Destroyed", "Weak", "Strong"];
 
-        console.log(class_scores);
-        document.getElementById("result").innerHTML = classes[max_score_id].toString();
-      }
+            // Calculate percentages
+            let total = class_scores.reduce((a, b) => a + b, 0);
+            let percentages = class_scores.map(score => (score / total * 100).toFixed(2));
+
+            // Update result text
+            document.getElementById("result-main").innerHTML = classes[max_score_id];
+            document.getElementById("result-destroyed").innerHTML = percentages[0] + "%";
+            document.getElementById("result-weak").innerHTML = percentages[1] + "%";
+            document.getElementById("result-strong").innerHTML = percentages[2] + "%";
+
+            // Environmental Score Calculation
+            let destroyedPercentage = parseFloat(percentages[0]);
+            let weakPercentage = parseFloat(percentages[1]);
+            let strongPercentage = parseFloat(percentages[2]);
+
+            let environmentalScore = (destroyedPercentage * 0) + (weakPercentage * 0.385) + (strongPercentage * 1);
+            environmentalScore = Math.min(Math.max(environmentalScore, 0), 100).toFixed(2);
+
+            // Display Environmental Score
+            let scoreElement = document.getElementById("environmental-score");
+            scoreElement.innerHTML = `Environmental Score: ${environmentalScore}%`;
+
+            // Color-code Environmental Score
+            if (environmentalScore < 50) {
+                scoreElement.style.color = 'red';
+            } else if (environmentalScore < 70) {
+                scoreElement.style.color = 'yellow';
+            } else {
+                scoreElement.style.color = 'green';
+            }
+        }
     </script>
-  </body>
+</body>
 </html>
+
