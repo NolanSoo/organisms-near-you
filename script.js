@@ -114,22 +114,6 @@ async function fetchWikipediaSnippet(query) {
         return { snippet: 'Error fetching snippet', link: '#' };
     }
 }
-// Function to format the date display based on selected month
-function formatDateDisplay(eventDate, selectedMonth) {
-  if (!eventDate) return 'Date not available';
-
-  const date = new Date(eventDate);
-  const year = date.getFullYear();
-  const month = date.getMonth() + 1; // Months are zero-based
-
-  if (selectedMonth === 'all') {
-    return year;
-  } else if (selectedMonth == month) {
-    return date.toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' });
-  } else {
-    return year;
-  }
-}
 
 // Function to fetch results for a random location
 async function fetchResultsForRandomLocation(lat, lon) {
@@ -246,18 +230,15 @@ async function fetchResultsForRandomLocation(lat, lon) {
             map.setView([lat, lng], map.getZoom());
         }
 
-       const dateDisplay = formatDateDisplay(occurrenceDate, selectedMonth);
-
-    occurrenceDiv.innerHTML = 
-      `<strong>${commonName || 'Common Name not available'}</strong><br>
-      <em>${occurrence.scientificName}</em><br>
-      <strong>Locality:</strong> ${locality}<br>
-      <strong>Distance:</strong> ${distanceInKm} km / ${distanceInMiles} miles<br>
-      <strong>Date:</strong> ${dateDisplay}<br>
-      <a href="${wikiLink}" target="_blank">Wikipedia</a><br>
-      ${snippetHtml}
-      ${speciesImage ? `<img src="${speciesImage}" alt="${commonName || 'Species Image'}" class="species-image">` : ''}`;
-
+        occurrenceDiv.innerHTML = `
+            <strong>${commonName || 'Common Name not available'}</strong><br>
+            <em>${occurrence.scientificName}</em><br>
+            <strong>Locality:</strong> ${locality}<br>
+            <strong>Distance:</strong> ${distanceInKm} km / ${distanceInMiles} miles<br>
+            <a href="${wikiLink}" target="_blank">Wikipedia</a><br>
+            ${snippetHtml}
+            ${speciesImage ? `<img src="${speciesImage}" alt="${commonName || 'Species Image'}" class="species-image">` : ''}
+        `;
 
         listContainer.appendChild(occurrenceDiv);
 
@@ -266,7 +247,6 @@ async function fetchResultsForRandomLocation(lat, lon) {
             <em>${occurrence.scientificName}</em><br>
             <strong>Locality:</strong> ${locality}<br>
             <strong>Distance:</strong> ${distanceInKm} km / ${distanceInMiles} miles<br>
-             <strong>Date:</strong> ${dateDisplay}<br>
             <a href="${wikiLink}" target="_blank">Wikipedia</a><br>
             ${snippetHtml}
             ${speciesImage ? `<img src="${speciesImage}" alt="${commonName || 'Species Image'}" class="species-image">` : ''}
@@ -398,18 +378,15 @@ async function fetchResults(lat = userLat, lon = userLon) {
             map.setView([lat, lng], map.getZoom());
         }
 
-       const dateDisplay = formatDateDisplay(occurrenceDate, selectedMonth);
-
-    occurrenceDiv.innerHTML = 
-      `<strong>${commonName || 'Common Name not available'}</strong><br>
-      <em>${occurrence.scientificName}</em><br>
-      <strong>Locality:</strong> ${locality}<br>
-      <strong>Distance:</strong> ${distanceInKm} km / ${distanceInMiles} miles<br>
-      <strong>Date:</strong> ${dateDisplay}<br>
-      <a href="${wikiLink}" target="_blank">Wikipedia</a><br>
-      ${snippetHtml}
-      ${speciesImage ? `<img src="${speciesImage}" alt="${commonName || 'Species Image'}" class="species-image">` : ''}`;
-
+        occurrenceDiv.innerHTML = `
+            <strong>${commonName || 'Common Name not available'}</strong><br>
+            <em>${occurrence.scientificName}</em><br>
+            <strong>Locality:</strong> ${locality}<br>
+            <strong>Distance:</strong> ${distanceInKm} km / ${distanceInMiles} miles<br>
+            <a href="${wikiLink}" target="_blank">Wikipedia</a><br>
+            ${snippetHtml}
+            ${speciesImage ? `<img src="${speciesImage}" alt="${commonName || 'Species Image'}" class="species-image">` : ''}
+        `;
 
         listContainer.appendChild(occurrenceDiv);
 
@@ -418,7 +395,6 @@ async function fetchResults(lat = userLat, lon = userLon) {
             <em>${occurrence.scientificName}</em><br>
             <strong>Locality:</strong> ${locality}<br>
             <strong>Distance:</strong> ${distanceInKm} km / ${distanceInMiles} miles<br>
-             <strong>Date:</strong> ${dateDisplay}<br>
             <a href="${wikiLink}" target="_blank">Wikipedia</a><br>
             ${snippetHtml}
             ${speciesImage ? `<img src="${speciesImage}" alt="${commonName || 'Species Image'}" class="species-image">` : ''}
