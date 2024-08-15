@@ -139,7 +139,8 @@ function handleMapClick(e) {
   const correctLatLng = L.latLng(correctLocation.lat, correctLocation.lon);
   const distance = userLatLng.distanceTo(correctLatLng) / 1000; // Convert to kilometers
   const europe = document.getElementById('europe').checked;
-  const score = calculateScore(distance, europe);
+  const usacanada = document.getElementById('usacanada').checked;
+  const score = calculateScore(distance, europe, usacanada);
   roundScores.push(score);
   sessionScore += score;
 
@@ -171,9 +172,20 @@ function handleMapClick(e) {
   }
 }
 
-function calculateScore(distance, isEuropeMode) {
-  const maxDistanceForPoints = isEuropeMode ? 1500 : 4000;
-  const scoreCoefficient = isEuropeMode ? 3.3334 : 1.25;
+function calculateScore(distance, isEuropeMode, isUSACanadaMode) {
+  let maxDistanceForPoints;
+  let scoreCoefficient;
+
+  if (isEuropeMode) {
+    maxDistanceForPoints = 1500;
+    scoreCoefficient = 3.3334;
+  } else if (isUSACanadaMode) {
+    maxDistanceForPoints = 2000;
+    scoreCoefficient = 2.5;
+  } else {
+    maxDistanceForPoints = 4000;  // Default mode max distance
+    scoreCoefficient = 1.25;       // Default mode coefficient
+  }
 
   if (distance > maxDistanceForPoints) return 0;
   return Math.round(5000 - (distance * scoreCoefficient));
