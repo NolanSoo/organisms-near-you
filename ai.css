@@ -1,0 +1,8 @@
+html {
+  height: 100%;
+  width: 100%;
+}
+body {
+  font-family: 'Poppins', sans-serif;
+  transition: background-color 0.5s, color 0.5s;
+}
