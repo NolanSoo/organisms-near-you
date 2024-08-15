@@ -92,8 +92,8 @@
 
             // Environmental Score Calculation
             let destroyedPercentage = parseFloat(percentages[0]);
-            let weakPercentage = parseFloat(percentages[1]);
-            let strongPercentage = parseFloat(percentages[2]);
+            let weakPercentage = parseFloat(percentages[2]);
+            let strongPercentage = parseFloat(percentages[1]);
 
             let environmentalScore = (destroyedPercentage * 0) + (weakPercentage * 0.385) + (strongPercentage * 1);
             environmentalScore = Math.min(Math.max(environmentalScore, 0), 100).toFixed(2);
