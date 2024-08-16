@@ -116,7 +116,10 @@ async function fetchWikipediaSnippet(query) {
     }
 }
 function downloadAllImages(imageUrls) {
-    imageUrls.forEach((imageUrl, index) => {
+    // Convert object to array if necessary
+    const imageUrlsArray = Array.isArray(imageUrls) ? imageUrls : Object.values(imageUrls);
+    
+    imageUrlsArray.forEach((imageUrl, index) => {
         // Create a temporary link element
         const link = document.createElement('a');
         link.href = imageUrl;
@@ -134,6 +137,7 @@ function downloadAllImages(imageUrls) {
         }, 100); // Delay to ensure the click is registered properly
     });
 }
+
 
 document.getElementById('downloadAllImages').addEventListener('click', downloadAllImages);
 // Function to fetch results for a random location
