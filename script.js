@@ -115,27 +115,37 @@ async function fetchWikipediaSnippet(query) {
         return { snippet: 'Error fetching snippet', link: '#' };
     }
 }
-function downloadAllImages(imageUrls) {
+async function downloadAllImages(imageUrls) {
     // Convert object to array if necessary
     const imageUrlsArray = Array.isArray(imageUrls) ? imageUrls : Object.values(imageUrls);
-    
-    imageUrlsArray.forEach((imageUrl, index) => {
-        // Create a temporary link element
-        const link = document.createElement('a');
-        link.href = imageUrl;
-        link.download = `image_${index + 1}.png`; // Unique name for each image
 
-        // Temporarily append link to the body
-        document.body.appendChild(link);
+    // Fetch images and download them
+    for (const [index, imageUrl] of imageUrlsArray.entries()) {
+        try {
+            // Fetch the image as a blob
+            const response = await fetch(imageUrl);
+            if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
 
-        // Use a timeout to ensure the link is added to the DOM before clicking
-        setTimeout(() => {
-            link.click(); // Trigger download
+            const blob = await response.blob();
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `image_${index + 1}.png`; // Unique name for each image
 
-            // Remove link from the body
-            document.body.removeChild(link);
-        }, 100); // Delay to ensure the click is registered properly
-    });
+            // Temporarily append link to the body
+            document.body.appendChild(link);
+
+            // Use a timeout to ensure the link is added to the DOM before clicking
+            setTimeout(() => {
+                link.click(); // Trigger download
+
+                // Remove link from the body
+                document.body.removeChild(link);
+                URL.revokeObjectURL(link.href); // Clean up the object URL
+            }, 100); // Delay to ensure the click is registered properly
+        } catch (error) {
+            console.error(`Failed to download image at ${imageUrl}:`, error);
+        }
+    }
 }
 
 
@@ -143,6 +153,7 @@ document.getElementById('downloadAllImages').addEventListener('click', downloadA
 // Function to fetch results for a random location
 async function fetchResultsForRandomLocation(lat, lon) {
     fetchStartTime = Date.now();
+    imageUrl.clear();
     const distance = 80; // Fixed radius of 80 miles for random location
     const resultsCount = parseInt(document.getElementById('results').value) || 10;
     const kingdomFilter = document.getElementById('kingdomFilter').value;
@@ -294,6 +305,7 @@ return true;
 // Function to fetch results based on provided coordinates
 async function fetchResults(lat = userLat, lon = userLon) {
     fetchStartTime = Date.now();
+    imageUrl.clear();
     let distance = parseFloat(document.getElementById('distance').value) || 10;
     const distanceUnit = document.getElementById('distanceUnit').value;
     const resultsCount = parseInt(document.getElementById('results').value) || 10;
