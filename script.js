@@ -135,9 +135,6 @@ function downloadAllImages(imageUrls) {
     });
 }
 
-
-    });
-}
 document.getElementById('downloadAllImages').addEventListener('click', downloadAllImages);
 // Function to fetch results for a random location
 async function fetchResultsForRandomLocation(lat, lon) {
