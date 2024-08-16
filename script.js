@@ -115,7 +115,20 @@ async function fetchWikipediaSnippet(query) {
         return { snippet: 'Error fetching snippet', link: '#' };
     }
 }
+function downloadAllImages() {
+    imageUrls.forEach(imageUrl => {
+        // Create a temporary link element
+        const link = document.createElement('a');
+        link.href = imageUrl;
+        link.download = imageUrl.split('/').pop(); // Use image filename as download name
 
+        // Append to body, click, and remove
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    });
+}
+document.getElementById('downloadAllImages').addEventListener('click', downloadAllImages);
 // Function to fetch results for a random location
 async function fetchResultsForRandomLocation(lat, lon) {
     fetchStartTime = Date.now();
