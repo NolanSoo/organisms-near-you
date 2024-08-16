@@ -119,8 +119,11 @@ function downloadAllImages(imageUrls) {
         return;
     }
 
-    // Iterate over the values of the object
-    for (const url of Object.values(imageUrls)) {
+    // Convert object values to an array of URLs
+    const urls = Object.values(imageUrls);
+
+    // Process each URL
+    urls.forEach(url => {
         // Ensure the URL is a string
         if (typeof url === 'string') {
             // Create a temporary link element
@@ -136,7 +139,7 @@ function downloadAllImages(imageUrls) {
         } else {
             console.error(`Invalid URL: ${url} - Expected a string.`);
         }
-    }
+    });
 }
 
 document.getElementById('downloadAllImages').addEventListener('click', downloadAllImages);
