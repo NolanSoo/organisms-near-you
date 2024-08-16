@@ -262,7 +262,6 @@ return true;
 
 // Function to fetch results based on provided coordinates
 // Function to fetch results based on provided coordinates
-// Function to fetch results and show the button
 async function fetchResults(lat = userLat, lon = userLon) {
     fetchStartTime = Date.now();
     let distance = parseFloat(document.getElementById('distance').value) || 10;
@@ -406,39 +405,8 @@ async function fetchResults(lat = userLat, lon = userLon) {
         markers.push(marker);
         marker.addTo(map);
     });
-
-    // Show the button to transfer images to the AI page
-    document.getElementById('transfer-button').style.display = 'block';
-    return true;
+  return true;
 }
-
-// Function to handle image file transfer to the AI page
-function transferFilesToAI() {
-    const formData = new FormData();
-    const images = document.querySelectorAll('.species-image'); // Collect all species images
-
-    images.forEach(img => {
-        formData.append('files[]', img.src); // Append image URLs or blobs
-    });
-
-    // Send files to the AI page for processing
-    fetch('ai-processing.html', {
-        method: 'POST',
-        body: formData
-    }).then(response => response.json())
-      .then(data => {
-          // Handle the response from the AI page
-          console.log('AI processing result:', data);
-          // Update UI with the environmental score
-          document.getElementById('environmental-score').innerText = `Average Environmental Score: ${data.averageScore}%`;
-      }).catch(error => {
-          console.error('Error transferring files to AI:', error);
-      });
-}
-
-// Add event listener for the button
-document.getElementById('transfer-button').addEventListener('click', transferFilesToAI);
-
 // Function to generate random location and fetch results
 async function randomLocation() {
   const latitudeRange = [-50, 60]; // Latitude range (50°S to 60°N)
