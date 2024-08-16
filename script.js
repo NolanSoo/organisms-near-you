@@ -113,27 +113,24 @@ async function fetchWikipediaSnippet(query) {
     }
 }
 async function downloadAllImages(imageUrls) {
-    // Check if imageUrls is an array
-    if (!Array.isArray(imageUrls)) {
-        console.error('Provided imageUrls is not an array.');
+    // Ensure imageUrls is an object and not null or undefined
+    if (typeof imageUrls !== 'object' || imageUrls === null) {
+        console.error('Provided imageUrls is not an object.');
         return;
     }
 
-    // Log the image URLs array for debugging
-    console.log('Image URLs Array:', imageUrls);
+    // Convert object values to an array of URLs
+    const urls = Object.values(imageUrls);
 
-    for (const [index, imageUrl] of imageUrls.entries()) {
-        if (!imageUrl || typeof imageUrl !== 'string') {
-            console.error(`Invalid URL at index ${index}: ${imageUrl}`);
-            continue; // Skip invalid URLs
-        }
-
+    // Process each URL
+    for (let index = 0; index < urls.length; index++) {
+        const url = urls[index];
         try {
             // Fetch the image as a blob
-            const response = await fetch(imageUrl);
+            const response = await fetch(url);
             if (!response.ok) {
                 console.error(`Failed to fetch image at index ${index}. Status: ${response.status}`);
-                continue; // Skip this URL and move to the next
+                continue;
             }
 
             const blob = await response.blob();
@@ -157,6 +154,7 @@ async function downloadAllImages(imageUrls) {
         }
     }
 }
+
 
 
 
