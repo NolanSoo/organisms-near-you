@@ -113,34 +113,45 @@ async function fetchWikipediaSnippet(query) {
     }
 }
 function downloadAllImages(imageUrls) {
-    // Check if imageUrls is an object and not null
-    if (typeof imageUrls !== 'object' || imageUrls === null) {
-        console.error('Provided imageUrls is not a valid object.');
+    // Check if imageUrls is an array
+    if (!Array.isArray(imageUrls)) {
+        console.error('Provided imageUrls is not a valid array.');
         return;
     }
 
-    // Convert object values to an array of URLs
-    const urls = Object.values(imageUrls);
-
-    // Process each URL
-    urls.forEach(url => {
+    // Process each URL in the array
+    imageUrls.forEach(url => {
         // Ensure the URL is a string
         if (typeof url === 'string') {
             // Create a temporary link element
             const link = document.createElement('a');
-            link.href = url;
-            link.download = ''; // No filename specified, download the file as it is
 
-            // Trigger the download
-            link.click();
+            // Attempt to load the image before downloading
+            const img = new Image();
+            img.onload = function() {
+                // If the image loads successfully, proceed with the download
+                link.href = url;
+                link.download = ''; // No filename specified, download the file as it is
 
-            // Optionally remove the link element after triggering the download
-            link.remove();
+                // Trigger the download
+                link.click();
+
+                // Optionally remove the link element after triggering the download
+                link.remove();
+            };
+
+            img.onerror = function() {
+                console.error(`Failed to load image from URL: ${url}`);
+            };
+
+            // Set the image source to trigger the onload/onerror events
+            img.src = url;
         } else {
             console.error(`Invalid URL: ${url} - Expected a string.`);
         }
     });
 }
+
 
 document.getElementById('downloadAllImages').addEventListener('click', downloadAllImages);
 // Function to fetch results for a random location
