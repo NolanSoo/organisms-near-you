@@ -122,16 +122,19 @@ function downloadAllImages(imageUrls) {
         link.href = imageUrl;
         link.download = `image_${index + 1}.png`; // Unique name for each image
 
-        // Append link to the body
+        // Temporarily append link to the body
         document.body.appendChild(link);
 
-        // Programmatically click the link to trigger download
-        link.click();
+        // Use a timeout to ensure the link is added to the DOM before clicking
+        setTimeout(() => {
+            link.click(); // Trigger download
 
-        // Remove link from the body
-        document.body.removeChild(link);
+            // Remove link from the body
+            document.body.removeChild(link);
+        }, 100); // Delay to ensure the click is registered properly
     });
 }
+
 
     });
 }
