@@ -67,77 +67,87 @@
     </p>
     <p id="environmental-score"></p>
 
-    <script>
-        const imageContainer = document.getElementById('image-container');
-        const inputButton = document.getElementById('input_button');
-        const imageElements = [];
+ <script>
+    const imageContainer = document.getElementById('image-container');
+    const inputButton = document.getElementById('input_button');
+    const imageElements = [];
 
-        inputButton.onchange = evt => {
-            imageContainer.innerHTML = ''; // Clear previous images
-            const files = Array.from(inputButton.files);
-            files.forEach(file => {
-                const img = document.createElement('img');
-                img.src = URL.createObjectURL(file);
-                imageContainer.appendChild(img);
-                imageElements.push(img);
-            });
-        };
+    inputButton.onchange = evt => {
+        imageContainer.innerHTML = ''; // Clear previous images
+        const files = Array.from(inputButton.files);
+        files.forEach(file => {
+            const img = document.createElement('img');
+            img.src = URL.createObjectURL(file);
+            imageContainer.appendChild(img);
+            imageElements.push(img);
+        });
+    };
 
-        async function predict() {
-            var model = await tf.loadGraphModel('./model.json');
+    async function predict() {
+        var model = await tf.loadGraphModel('./model.json');
 
-            let classScores = [];
-            for (const img of imageElements) {
-                let example = tf.browser.fromPixels(img, 3).cast('float32');
-                example = example.reshape([1, example.shape[0], example.shape[1], example.shape[2]]);
-                let prediction = await model.predict(example);
-                let scores = await prediction.data();
-                classScores.push(scores);
-            }
-
-            // Calculate average class scores
-            let averageScores = classScores.reduce((acc, scores) => {
-                scores.forEach((score, i) => {
-                    acc[i] += score;
-                });
-                return acc;
-            }, new Array(classScores[0].length).fill(0)).map(score => score / classScores.length);
-
-            let maxScoreId = averageScores.indexOf(Math.max(...averageScores));
-            let classes = ["Destroyed", "Strong", "Weak"];
-
-            // Calculate percentages
-            let total = averageScores.reduce((a, b) => a + b, 0);
-            let percentages = averageScores.map(score => (score / total * 100).toFixed(2));
-
-            // Update result text
-            document.getElementById("result-main").innerHTML = classes[maxScoreId];
-            document.getElementById("result-destroyed").innerHTML = percentages[0] + "%";
-            document.getElementById("result-weak").innerHTML = percentages[2] + "%";
-            document.getElementById("result-strong").innerHTML = percentages[1] + "%";
-
-            // Environmental Score Calculation
-            let destroyedPercentage = parseFloat(percentages[0]);
-            let weakPercentage = parseFloat(percentages[2]);
-            let strongPercentage = parseFloat(percentages[1]);
-
-            let environmentalScore = (destroyedPercentage * 0) + (weakPercentage * 0.385) + (strongPercentage * 1);
-            environmentalScore = Math.min(Math.max(environmentalScore, 0), 100).toFixed(2);
-
-            // Display Environmental Score
-            let scoreElement = document.getElementById("environmental-score");
-            scoreElement.innerHTML = `Environmental Score: ${environmentalScore}%`;
-
-            // Color-code Environmental Score
-            if (environmentalScore < 50) {
-                scoreElement.style.color = 'red';
-            } else if (environmentalScore < 70) {
-                scoreElement.style.color = 'yellow';
-            } else {
-                scoreElement.style.color = 'green';
-            }
+        let classScores = [];
+        for (const img of imageElements) {
+            let example = tf.browser.fromPixels(img, 3).cast('float32');
+            example = example.reshape([1, example.shape[0], example.shape[1], example.shape[2]]);
+            let prediction = await model.predict(example);
+            let scores = await prediction.data();
+            classScores.push(scores);
         }
-    </script>
+
+        // Handle case where there are no images
+        if (classScores.length === 0) {
+            return;
+        }
+
+        // Calculate average class scores
+        let numClasses = classScores[0].length;
+        let averageScores = new Array(numClasses).fill(0);
+        
+        classScores.forEach(scores => {
+            scores.forEach((score, i) => {
+                averageScores[i] += score;
+            });
+        });
+
+        averageScores = averageScores.map(score => score / classScores.length);
+
+        // Identify the class with the highest average score
+        let maxScoreId = averageScores.indexOf(Math.max(...averageScores));
+        let classes = ["Destroyed", "Strong", "Weak"];
+
+        // Calculate percentages
+        let total = averageScores.reduce((a, b) => a + b, 0);
+        let percentages = averageScores.map(score => (score / total * 100).toFixed(2));
+
+        // Update result text
+        document.getElementById("result-main").innerHTML = classes[maxScoreId];
+        document.getElementById("result-destroyed").innerHTML = percentages[0] + "%";
+        document.getElementById("result-weak").innerHTML = percentages[2] + "%";
+        document.getElementById("result-strong").innerHTML = percentages[1] + "%";
+
+        // Environmental Score Calculation
+        let destroyedPercentage = parseFloat(percentages[0]);
+        let weakPercentage = parseFloat(percentages[2]);
+        let strongPercentage = parseFloat(percentages[1]);
+
+        let environmentalScore = (destroyedPercentage * 0) + (weakPercentage * 0.385) + (strongPercentage * 1);
+        environmentalScore = Math.min(Math.max(environmentalScore, 0), 100).toFixed(2);
+
+        // Display Environmental Score
+        let scoreElement = document.getElementById("environmental-score");
+        scoreElement.innerHTML = `Environmental Score: ${environmentalScore}%`;
+
+        // Color-code Environmental Score
+        if (environmentalScore < 50) {
+            scoreElement.style.color = 'red';
+        } else if (environmentalScore < 70) {
+            scoreElement.style.color = 'yellow';
+        } else {
+            scoreElement.style.color = 'green';
+        }
+    }
+</script>
 </body>
 </html>
 
