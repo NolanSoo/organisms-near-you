@@ -264,6 +264,7 @@ async function fetchResultsForRandomLocation(lat, lon) {
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
+        }
     });
 return true;
 }
@@ -420,6 +421,7 @@ async function fetchResults(lat = userLat, lon = userLon) {
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
+        }
     });
   return true;
 }
