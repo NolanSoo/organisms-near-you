@@ -156,7 +156,7 @@ async function fetchResultsForRandomLocation(lat, lon) {
     }
 
     timeoutHandle = setTimeout(() => {
-        listContainer.innerHTML = '<p style="color: red;">Error: The search is taking too long. Please try again with different filters or fewer results.</p>';
+        listContainer.innerHTML = '<p style="color: red;">Error: The search is taking too long. Please try again with different filters or fewer results. </p>';
     }, 100000);
 
     while ((occurrences.length < resultsCount) && (additionalFetches < 10)) {
