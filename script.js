@@ -283,6 +283,7 @@ async function fetchResultsForRandomLocation(lat, lon) {
           // Download the image if it exists
         if (speciesImage) {
             imageUrls.push(speciesImage);
+            console.log(imageUrls);
         }
     });
 return true;
