@@ -115,17 +115,24 @@ async function fetchWikipediaSnippet(query) {
         return { snippet: 'Error fetching snippet', link: '#' };
     }
 }
-function downloadAllImages() {
-    imageUrls.forEach(imageUrl => {
+function downloadAllImages(imageUrls) {
+    imageUrls.forEach((imageUrl, index) => {
         // Create a temporary link element
         const link = document.createElement('a');
         link.href = imageUrl;
-        link.download = imageUrl.split('/').pop(); // Use image filename as download name
+        link.download = `image_${index + 1}.png`; // Unique name for each image
 
-        // Append to body, click, and remove
+        // Append link to the body
         document.body.appendChild(link);
+
+        // Programmatically click the link to trigger download
         link.click();
+
+        // Remove link from the body
         document.body.removeChild(link);
+    });
+}
+
     });
 }
 document.getElementById('downloadAllImages').addEventListener('click', downloadAllImages);
