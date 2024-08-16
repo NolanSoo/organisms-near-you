@@ -36,9 +36,6 @@ function initializeMap(lat, lon) {
     attribution: '&copy; OpenStreetMap contributors'
   }).addTo(map);
 
-
-  
-
   currentLocationMarker = L.marker([lat, lon], {
     color: 'red',
     title: 'Your Location'
@@ -119,19 +116,21 @@ async function downloadAllImages(imageUrls) {
     // Convert object to array if necessary
     const imageUrlsArray = Array.isArray(imageUrls) ? imageUrls : Object.values(imageUrls);
 
+    // Log the image URLs array for debugging
+    console.log('Image URLs Array:', imageUrlsArray);
+
     // Fetch images and download them
     for (const [index, imageUrl] of imageUrlsArray.entries()) {
         try {
             // Validate the URL
             if (!imageUrl || !/^https?:\/\//.test(imageUrl)) {
-                throw new Error(`Invalid URL: ${imageUrl}`);
+                console.error(`Invalid URL: ${imageUrl}`);
+                continue; // Skip invalid URLs
             }
 
             // Fetch the image as a blob
             const response = await fetch(imageUrl);
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status} for URL: ${imageUrl}`);
-            }
+            if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
 
             const blob = await response.blob();
             const link = document.createElement('a');
@@ -154,6 +153,7 @@ async function downloadAllImages(imageUrls) {
         }
     }
 }
+
 
 
 
