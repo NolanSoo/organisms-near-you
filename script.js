@@ -115,7 +115,7 @@ async function fetchWikipediaSnippet(query) {
 function downloadAllImages(imageUrls) {
     // Ensure imageUrls is an object and not null or undefined
     if (typeof imageUrls !== 'object' || imageUrls === null) {
-        console.error('Provided imageUrls is not an object.');
+        console.error('Provided imageUrls is not a valid object.');
         return;
     }
 
@@ -123,11 +123,14 @@ function downloadAllImages(imageUrls) {
     const urls = Object.values(imageUrls);
 
     // Process each URL
-    urls.forEach((url, index) => {
+    urls.forEach(url => {
+        // Extract filename from URL
+        const filename = url.substring(url.lastIndexOf('/') + 1);
+
         // Create a temporary link element
         const link = document.createElement('a');
         link.href = url;
-        link.download = `image_${index + 1}.png`; // Unique name for each image
+        link.download = filename; // Use the original filename
 
         // Temporarily append link to the body
         document.body.appendChild(link);
@@ -139,8 +142,6 @@ function downloadAllImages(imageUrls) {
         document.body.removeChild(link);
     });
 }
-
-
 
 
 
