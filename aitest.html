@@ -131,7 +131,7 @@
         let weakPercentage = parseFloat(percentages[2]);
         let strongPercentage = parseFloat(percentages[1]);
 
-        let environmentalScore = (destroyedPercentage * 0) + (weakPercentage * 0.385) + (strongPercentage * 1);
+        let environmentalScore = (destroyedPercentage * 0) + (weakPercentage * 0.285) + (strongPercentage * 1);
         environmentalScore = Math.min(Math.max(environmentalScore, 0), 100).toFixed(2);
 
         // Display Environmental Score
@@ -142,7 +142,7 @@
         if (environmentalScore < 50) {
             scoreElement.style.color = 'red';
         } else if (environmentalScore < 70) {
-            scoreElement.style.color = 'yellow';
+            scoreElement.style.color = 'orange';
         } else {
             scoreElement.style.color = 'green';
         }
