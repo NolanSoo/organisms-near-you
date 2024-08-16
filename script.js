@@ -112,47 +112,32 @@ async function fetchWikipediaSnippet(query) {
         return { snippet: 'Error fetching snippet', link: '#' };
     }
 }
-async function downloadAllImages(imageUrls) {
+function downloadAllImages(imageUrls) {
     // Ensure imageUrls is an object and not null or undefined
     if (typeof imageUrls !== 'object' || imageUrls === null) {
         console.error('Provided imageUrls is not an object.');
         return;
     }
 
-    // Convert object values to an array of URLs 
+    // Convert object values to an array of URLs
     const urls = Object.values(imageUrls);
 
     // Process each URL
-    for (let index = 0; index < urls.length; index++) {
-        const url = urls[index];
-        try {
-            // Fetch the image as a blob
-            const response = await fetch(url);
-            if (!response.ok) {
-                console.error(`Failed to fetch image at index ${index}. Status: ${response.status}`);
-                continue;
-            }
+    urls.forEach((url, index) => {
+        // Create a temporary link element
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `image_${index + 1}.png`; // Unique name for each image
 
-            const blob = await response.blob();
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = `image_${index + 1}.png`; // Unique name for each image
+        // Temporarily append link to the body
+        document.body.appendChild(link);
 
-            // Temporarily append link to the body
-            document.body.appendChild(link);
+        // Trigger download
+        link.click();
 
-            // Use a timeout to ensure the link is added to the DOM before clicking
-            setTimeout(() => {
-                link.click(); // Trigger download
-
-                // Remove link from the body
-                document.body.removeChild(link);
-                URL.revokeObjectURL(link.href); // Clean up the object URL
-            }, 100); // Delay to ensure the click is registered properly
-        } catch (error) {
-            console.error(`Error downloading image at index ${index}:`, error);
-        }
-    }
+        // Remove link from the body
+        document.body.removeChild(link);
+    });
 }
 
 
