@@ -121,15 +121,12 @@ function downloadAllImages(imageUrls) {
 
     // Iterate over the values of the object
     for (const url of Object.values(imageUrls)) {
-        // Ensure the URL is a string before calling .split
+        // Ensure the URL is a string
         if (typeof url === 'string') {
-            // Extract filename from URL
-            const filename = url.split('/').pop(); // Extract filename from URL
-
             // Create a temporary link element
             const link = document.createElement('a');
             link.href = url;
-            link.download = filename; // Use the extracted filename
+            link.download = ''; // No filename specified, download the file as it is
 
             // Trigger the download
             link.click();
