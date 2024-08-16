@@ -7,7 +7,7 @@ let currentThemeIndex = 0;
 const themes = ['light-theme', 'dark-theme', 'green-theme', 'alt-theme', 'alt-theme2'];
 let fetchStartTime;
 let timeoutHandle;
-let imageUrls = []; 
+const imageUrls = []; 
 
 // Initialize the map with user's location
 if (navigator.geolocation) {
