@@ -36,9 +36,12 @@
     <br>
     This tool is used with Organisms Near You to analyze the sustainability of a location from an image
     <br>
+    <a href="index.html" id="k"><button>Organisms Near You</button></a>
+    <a href="aitest.html" id="k2"><button>Organisms Near You AI</button></a>
+    <br>
     <input accept="image/*" type='file' id="input_button" />
     <br>
-    <img id="img1" src="top2.png" style="width: 300px " />
+    <img id="img1" src="top2.png" style="width: 500px " />
     <br>  <br>
     <button onclick="predict()">predict</button>
     <br>
@@ -80,7 +83,7 @@
             let prediction = await model.predict(example);
             let class_scores = await prediction.data();
             let max_score_id = class_scores.indexOf(Math.max(...class_scores));
-            let classes = ["Destroyed", "Weak", "Strong"];
+            let classes = ["Destroyed", "Strong", "Weak"];
 
             // Calculate percentages
             let total = class_scores.reduce((a, b) => a + b, 0);
