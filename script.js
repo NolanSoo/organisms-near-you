@@ -113,24 +113,28 @@ async function fetchWikipediaSnippet(query) {
     }
 }
 async function downloadAllImages(imageUrls) {
-    // Convert object to array if necessary
-    const imageUrlsArray = Array.isArray(imageUrls) ? imageUrls : Object.values(imageUrls);
+    // Check if imageUrls is an array
+    if (!Array.isArray(imageUrls)) {
+        console.error('Provided imageUrls is not an array.');
+        return;
+    }
 
     // Log the image URLs array for debugging
-    console.log('Image URLs Array:', imageUrlsArray);
+    console.log('Image URLs Array:', imageUrls);
 
-    // Fetch images and download them
-    for (const [index, imageUrl] of imageUrlsArray.entries()) {
+    for (const [index, imageUrl] of imageUrls.entries()) {
+        if (!imageUrl || typeof imageUrl !== 'string') {
+            console.error(`Invalid URL at index ${index}: ${imageUrl}`);
+            continue; // Skip invalid URLs
+        }
+
         try {
-            // Validate the URL
-            if (!imageUrl || !/^https?:\/\//.test(imageUrl)) {
-                console.error(`Invalid URL: ${imageUrl}`);
-                continue; // Skip invalid URLs
-            }
-
             // Fetch the image as a blob
             const response = await fetch(imageUrl);
-            if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+            if (!response.ok) {
+                console.error(`Failed to fetch image at index ${index}. Status: ${response.status}`);
+                continue; // Skip this URL and move to the next
+            }
 
             const blob = await response.blob();
             const link = document.createElement('a');
@@ -149,10 +153,11 @@ async function downloadAllImages(imageUrls) {
                 URL.revokeObjectURL(link.href); // Clean up the object URL
             }, 100); // Delay to ensure the click is registered properly
         } catch (error) {
-            console.error(`Failed to download image at ${imageUrl}:`, error);
+            console.error(`Error downloading image at index ${index}:`, error);
         }
     }
 }
+
 
 
 
