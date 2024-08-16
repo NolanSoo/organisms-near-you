@@ -119,7 +119,7 @@ async function downloadAllImages(imageUrls) {
         return;
     }
 
-    // Convert object values to an array of URLs
+    // Convert object values to an array of URLs 
     const urls = Object.values(imageUrls);
 
     // Process each URL
