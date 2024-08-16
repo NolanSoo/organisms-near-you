@@ -28,6 +28,10 @@
         #environmental-score {
             font-weight: bold;
         }
+        #image-container img {
+            width: 500px;
+            margin: 5px;
+        }
     </style>
 </head>
 <body>
@@ -39,10 +43,10 @@
     <a href="index.html" id="k"><button>Organisms Near You</button></a>
     <a href="aitest.html" id="k2"><button>Organisms Near You AI</button></a>
     <br>
-    <input accept="image/*" type='file' id="input_button" />
+    <input accept="image/*" type='file' id="input_button" multiple />
     <br>
-    <img id="img1" src="top2.png" style="width: 500px " />
-    <br>  <br>
+    <div id="image-container"></div>
+    <br>
     <button onclick="predict()">predict</button>
     <br>
     <p id="result">
@@ -64,33 +68,50 @@
     <p id="environmental-score"></p>
 
     <script>
-        let image = document.getElementById('img1');
-        let input_button = document.getElementById('input_button');
+        const imageContainer = document.getElementById('image-container');
+        const inputButton = document.getElementById('input_button');
+        const imageElements = [];
 
-        input_button.onchange = evt => {
-            const [file] = input_button.files
-            if (file) {
-                image.src = URL.createObjectURL(file)
-            }
-        }
+        inputButton.onchange = evt => {
+            imageContainer.innerHTML = ''; // Clear previous images
+            const files = Array.from(inputButton.files);
+            files.forEach(file => {
+                const img = document.createElement('img');
+                img.src = URL.createObjectURL(file);
+                imageContainer.appendChild(img);
+                imageElements.push(img);
+            });
+        };
 
         async function predict() {
             var model = await tf.loadGraphModel('./model.json');
 
-            let example = tf.browser.fromPixels(document.getElementById("img1"), 3).cast('float32');
-            example = example.reshape([1, example.shape[0], example.shape[1], example.shape[2]]);
+            let classScores = [];
+            for (const img of imageElements) {
+                let example = tf.browser.fromPixels(img, 3).cast('float32');
+                example = example.reshape([1, example.shape[0], example.shape[1], example.shape[2]]);
+                let prediction = await model.predict(example);
+                let scores = await prediction.data();
+                classScores.push(scores);
+            }
 
-            let prediction = await model.predict(example);
-            let class_scores = await prediction.data();
-            let max_score_id = class_scores.indexOf(Math.max(...class_scores));
+            // Calculate average class scores
+            let averageScores = classScores.reduce((acc, scores) => {
+                scores.forEach((score, i) => {
+                    acc[i] += score;
+                });
+                return acc;
+            }, new Array(classScores[0].length).fill(0)).map(score => score / classScores.length);
+
+            let maxScoreId = averageScores.indexOf(Math.max(...averageScores));
             let classes = ["Destroyed", "Strong", "Weak"];
 
             // Calculate percentages
-            let total = class_scores.reduce((a, b) => a + b, 0);
-            let percentages = class_scores.map(score => (score / total * 100).toFixed(2));
+            let total = averageScores.reduce((a, b) => a + b, 0);
+            let percentages = averageScores.map(score => (score / total * 100).toFixed(2));
 
             // Update result text
-            document.getElementById("result-main").innerHTML = classes[max_score_id];
+            document.getElementById("result-main").innerHTML = classes[maxScoreId];
             document.getElementById("result-destroyed").innerHTML = percentages[0] + "%";
             document.getElementById("result-weak").innerHTML = percentages[2] + "%";
             document.getElementById("result-strong").innerHTML = percentages[1] + "%";
