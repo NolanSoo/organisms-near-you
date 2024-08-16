@@ -112,54 +112,7 @@ async function fetchWikipediaSnippet(query) {
         return { snippet: 'Error fetching snippet', link: '#' };
     }
 }
-function downloadAllImages() {
-    // Ensure imageUrls is an array
-    if (!Array.isArray(imageUrls)) {
-        console.error('Provided imageUrls is not a valid array.');
-        return;
-    }
 
-    // Check if there are no images to download
-    if (imageUrls.length === 0) {
-        console.log('No images to download.');
-        return;
-    }
-
-    // Process each URL in the array
-    imageUrls.forEach(url => {
-        // Ensure the URL is a string
-        if (typeof url === 'string' && url.trim() !== '') {
-            // Create a temporary link element
-            const link = document.createElement('a');
-            
-            // Attempt to load the image before downloading
-            const img = new Image();
-            img.onload = function() {
-                // If the image loads successfully, proceed with the download
-                link.href = url;
-                link.download = ''; // No filename specified, download the file as it is
-
-                // Trigger the download
-                link.click();
-
-                // Optionally remove the link element after triggering the download
-                link.remove();
-            };
-
-            img.onerror = function() {
-                console.error(`Failed to load image from URL: ${url}`);
-            };
-
-            // Set the image source to trigger the onload/onerror events
-            img.src = url;
-        } else {
-            console.error(`Invalid URL: ${url} - Expected a non-empty string.`);
-        }
-    });
-}
-
-
-document.getElementById('downloadAllImages').addEventListener('click', downloadAllImages);
 // Function to fetch results for a random location
 async function fetchResultsForRandomLocation(lat, lon) {
     fetchStartTime = Date.now();
