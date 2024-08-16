@@ -7,6 +7,7 @@ let currentThemeIndex = 0;
 const themes = ['light-theme', 'dark-theme', 'green-theme', 'alt-theme', 'alt-theme2'];
 let fetchStartTime;
 let timeoutHandle;
+let imageUrls = [];
 
 // Initialize the map with user's location
 if (navigator.geolocation) {
@@ -265,6 +266,10 @@ async function fetchResultsForRandomLocation(lat, lon) {
             link.click();
             document.body.removeChild(link);
         }
+       const speciesImage = occurrence.media && occurrence.media.length > 0 ? occurrence.media[0].identifier : '';
+        if (speciesImage) {
+            imageUrls.push(speciesImage);
+        }
     });
 return true;
 }
@@ -421,6 +426,10 @@ async function fetchResults(lat = userLat, lon = userLon) {
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
+        }
+       const speciesImage = occurrence.media && occurrence.media.length > 0 ? occurrence.media[0].identifier : '';
+        if (speciesImage) {
+            imageUrls.push(speciesImage);
         }
     });
   return true;
