@@ -112,20 +112,26 @@ async function fetchWikipediaSnippet(query) {
         return { snippet: 'Error fetching snippet', link: '#' };
     }
 }
-function downloadAllImages(imageUrls) {
-    // Check if imageUrls is an array
+function downloadAllImages() {
+    // Ensure imageUrls is an array
     if (!Array.isArray(imageUrls)) {
         console.error('Provided imageUrls is not a valid array.');
+        return;
+    }
+
+    // Check if there are no images to download
+    if (imageUrls.length === 0) {
+        console.log('No images to download.');
         return;
     }
 
     // Process each URL in the array
     imageUrls.forEach(url => {
         // Ensure the URL is a string
-        if (typeof url === 'string') {
+        if (typeof url === 'string' && url.trim() !== '') {
             // Create a temporary link element
             const link = document.createElement('a');
-
+            
             // Attempt to load the image before downloading
             const img = new Image();
             img.onload = function() {
@@ -147,7 +153,7 @@ function downloadAllImages(imageUrls) {
             // Set the image source to trigger the onload/onerror events
             img.src = url;
         } else {
-            console.error(`Invalid URL: ${url} - Expected a string.`);
+            console.error(`Invalid URL: ${url} - Expected a non-empty string.`);
         }
     });
 }
@@ -162,6 +168,7 @@ async function fetchResultsForRandomLocation(lat, lon) {
         delete imageUrls[key];
     }
 }
+    imageUrls.length = 0;
     const distance = 80; // Fixed radius of 80 miles for random location
     const resultsCount = parseInt(document.getElementById('results').value) || 10;
     const kingdomFilter = document.getElementById('kingdomFilter').value;
@@ -318,6 +325,7 @@ async function fetchResults(lat = userLat, lon = userLon) {
         delete imageUrls[key];
     }
 }
+    imageUrls.length = 0;
     let distance = parseFloat(document.getElementById('distance').value) || 10;
     const distanceUnit = document.getElementById('distanceUnit').value;
     const resultsCount = parseInt(document.getElementById('results').value) || 10;
