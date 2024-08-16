@@ -122,9 +122,16 @@ async function downloadAllImages(imageUrls) {
     // Fetch images and download them
     for (const [index, imageUrl] of imageUrlsArray.entries()) {
         try {
+            // Validate the URL
+            if (!imageUrl || !/^https?:\/\//.test(imageUrl)) {
+                throw new Error(`Invalid URL: ${imageUrl}`);
+            }
+
             // Fetch the image as a blob
             const response = await fetch(imageUrl);
-            if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status} for URL: ${imageUrl}`);
+            }
 
             const blob = await response.blob();
             const link = document.createElement('a');
@@ -147,6 +154,7 @@ async function downloadAllImages(imageUrls) {
         }
     }
 }
+
 
 
 document.getElementById('downloadAllImages').addEventListener('click', downloadAllImages);
