@@ -125,7 +125,7 @@ function downloadAllImages(imageUrls) {
     // Process each URL
     urls.forEach(url => {
         // Extract filename from URL
-        const filename = url.substring(url.lastIndexOf('/') + 1);
+        const filename = url
 
         // Create a temporary link element
         const link = document.createElement('a');
