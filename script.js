@@ -132,16 +132,13 @@ function downloadAllImages(imageUrls) {
         link.href = url;
         link.download = filename; // Use the original filename
 
-        // Temporarily append link to the body
-        document.body.appendChild(link);
-
-        // Trigger download
+        // Trigger the download
         link.click();
 
-        // Remove link from the body
-        document.body.removeChild(link);
+        // No need to append and remove link from the body as it's not required for a simple download
     });
 }
+
 
 
 
