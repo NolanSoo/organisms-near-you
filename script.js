@@ -153,7 +153,11 @@ document.getElementById('downloadAllImages').addEventListener('click', downloadA
 // Function to fetch results for a random location
 async function fetchResultsForRandomLocation(lat, lon) {
     fetchStartTime = Date.now();
-   imageUrls.clear();
+     for (const key in imageUrls) {
+    if (Object.hasOwnProperty.call(imageUrls, key)) {
+        delete imageUrls[key];
+    }
+}
     const distance = 80; // Fixed radius of 80 miles for random location
     const resultsCount = parseInt(document.getElementById('results').value) || 10;
     const kingdomFilter = document.getElementById('kingdomFilter').value;
@@ -305,7 +309,11 @@ return true;
 // Function to fetch results based on provided coordinates
 async function fetchResults(lat = userLat, lon = userLon) {
     fetchStartTime = Date.now();
-   imageUrls.clear();
+     for (const key in imageUrls) {
+    if (Object.hasOwnProperty.call(imageUrls, key)) {
+        delete imageUrls[key];
+    }
+}
     let distance = parseFloat(document.getElementById('distance').value) || 10;
     const distanceUnit = document.getElementById('distanceUnit').value;
     const resultsCount = parseInt(document.getElementById('results').value) || 10;
