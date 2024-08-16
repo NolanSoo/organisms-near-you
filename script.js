@@ -256,6 +256,14 @@ async function fetchResultsForRandomLocation(lat, lon) {
             .bindPopup(markerPopupContent);
         markers.push(marker);
         marker.addTo(map);
+          // Download the image if it exists
+        if (speciesImage) {
+            const link = document.createElement('a');
+            link.href = speciesImage;
+            link.download = speciesImage.split('/').pop(); // Use image filename as download name
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
     });
 return true;
 }
@@ -404,6 +412,14 @@ async function fetchResults(lat = userLat, lon = userLon) {
             .bindPopup(markerPopupContent);
         markers.push(marker);
         marker.addTo(map);
+       // Download the image if it exists
+        if (speciesImage) {
+            const link = document.createElement('a');
+            link.href = speciesImage;
+            link.download = speciesImage.split('/').pop(); // Use image filename as download name
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
     });
   return true;
 }
