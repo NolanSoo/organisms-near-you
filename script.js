@@ -258,14 +258,6 @@ async function fetchResultsForRandomLocation(lat, lon) {
         markers.push(marker);
         marker.addTo(map);
           // Download the image if it exists
-        if (speciesImage) {
-            const link = document.createElement('a');
-            link.href = speciesImage;
-            link.download = speciesImage.split('/').pop(); // Use image filename as download name
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
        const speciesImage = occurrence.media && occurrence.media.length > 0 ? occurrence.media[0].identifier : '';
         if (speciesImage) {
             imageUrls.push(speciesImage);
@@ -418,15 +410,6 @@ async function fetchResults(lat = userLat, lon = userLon) {
             .bindPopup(markerPopupContent);
         markers.push(marker);
         marker.addTo(map);
-       // Download the image if it exists
-        if (speciesImage) {
-            const link = document.createElement('a');
-            link.href = speciesImage;
-            link.download = speciesImage.split('/').pop(); // Use image filename as download name
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
        const speciesImage = occurrence.media && occurrence.media.length > 0 ? occurrence.media[0].identifier : '';
         if (speciesImage) {
             imageUrls.push(speciesImage);
