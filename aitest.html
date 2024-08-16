@@ -74,6 +74,10 @@
 
     inputButton.onchange = evt => {
         imageContainer.innerHTML = ''; // Clear previous images
+        document.getElementById("result-main").innerHTML = " ";
+        document.getElementById("result-destroyed").innerHTML = " ";
+        document.getElementById("result-weak").innerHTML = " ";
+        document.getElementById("result-strong").innerHTML = " ";
         const files = Array.from(inputButton.files);
         files.forEach(file => {
             const img = document.createElement('img');
