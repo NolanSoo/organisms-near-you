@@ -113,34 +113,29 @@ async function fetchWikipediaSnippet(query) {
     }
 }
 function downloadAllImages(imageUrls) {
-    // Ensure imageUrls is an object and not null or undefined
+    // Check if imageUrls is an object and not null
     if (typeof imageUrls !== 'object' || imageUrls === null) {
         console.error('Provided imageUrls is not a valid object.');
         return;
     }
 
-    // Convert object values to an array of URLs
-    const urls = Object.values(imageUrls);
-
-    // Process each URL
-    urls.forEach(url => {
+    // Iterate over the values of the object
+    for (const url of Object.values(imageUrls)) {
         // Extract filename from URL
-        const filename = url;
+        const filename = url.split('/').pop(); // Extract filename from URL
 
         // Create a temporary link element
         const link = document.createElement('a');
         link.href = url;
-        link.download = filename; // Use the original filename
+        link.download = filename; // Use the extracted filename
 
         // Trigger the download
         link.click();
 
-        // No need to append and remove link from the body as it's not required for a simple download
-    });
+        // Optionally remove the link element after triggering the download
+        link.remove();
+    }
 }
-
-
-
 
 
 document.getElementById('downloadAllImages').addEventListener('click', downloadAllImages);
