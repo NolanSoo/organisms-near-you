@@ -121,22 +121,26 @@ function downloadAllImages(imageUrls) {
 
     // Iterate over the values of the object
     for (const url of Object.values(imageUrls)) {
-        // Extract filename from URL
-        const filename = url.split('/').pop(); // Extract filename from URL
+        // Ensure the URL is a string before calling .split
+        if (typeof url === 'string') {
+            // Extract filename from URL
+            const filename = url.split('/').pop(); // Extract filename from URL
 
-        // Create a temporary link element
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = filename; // Use the extracted filename
+            // Create a temporary link element
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename; // Use the extracted filename
 
-        // Trigger the download
-        link.click();
+            // Trigger the download
+            link.click();
 
-        // Optionally remove the link element after triggering the download
-        link.remove();
+            // Optionally remove the link element after triggering the download
+            link.remove();
+        } else {
+            console.error(`Invalid URL: ${url} - Expected a string.`);
+        }
     }
 }
-
 
 document.getElementById('downloadAllImages').addEventListener('click', downloadAllImages);
 // Function to fetch results for a random location
