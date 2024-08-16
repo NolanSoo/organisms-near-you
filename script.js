@@ -258,7 +258,6 @@ async function fetchResultsForRandomLocation(lat, lon) {
         markers.push(marker);
         marker.addTo(map);
           // Download the image if it exists
-       const speciesImage = occurrence.media && occurrence.media.length > 0 ? occurrence.media[0].identifier : '';
         if (speciesImage) {
             imageUrls.push(speciesImage);
         }
@@ -410,7 +409,6 @@ async function fetchResults(lat = userLat, lon = userLon) {
             .bindPopup(markerPopupContent);
         markers.push(marker);
         marker.addTo(map);
-       const speciesImage = occurrence.media && occurrence.media.length > 0 ? occurrence.media[0].identifier : '';
         if (speciesImage) {
             imageUrls.push(speciesImage);
         }
