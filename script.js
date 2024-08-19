@@ -476,8 +476,18 @@ function updateMap() {
 
 // Change the theme of the application
 function changeTheme() {
-  const body = document.body;
-  body.classList.remove(themes[currentThemeIndex]);
-  currentThemeIndex = (currentThemeIndex + 1) % themes.length;
-  body.classList.add(themes[currentThemeIndex]);
+const body = document.body;
+const navbar = document.querySelector('.navbar'); // Get the navbar element
+
+// Remove the current theme class from both body and navbar
+body.classList.remove(themes[currentThemeIndex]);
+navbar.classList.remove(themes[currentThemeIndex]);
+
+// Update the current theme index
+currentThemeIndex = (currentThemeIndex + 1) % themes.length;
+
+// Add the new theme class to both body and navbar
+body.classList.add(themes[currentThemeIndex]);
+navbar.classList.add(themes[currentThemeIndex]);
+
 }
