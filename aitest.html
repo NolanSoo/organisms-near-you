@@ -89,7 +89,7 @@
     };
 
     async function predict() {
-        var model = await tf.loadGraphModel('./model.json');
+        var model = await tf.loadGraphModel('./model1.json');
 
         let classScores = [];
         for (const img of imageElements) {
