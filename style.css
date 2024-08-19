@@ -45,10 +45,11 @@ body {
     }
 
     .navbar a {
-        font-size: 5vw; /* Adjust the font size for mobile */
+        font-size: 3.8vw; /* Adjust the font size for mobile */
         margin-bottom: 10px; /* Add more spacing between links */
     }
 }
+
 
 .navbar.dark-theme {
   background-color: #2e2e2e;
