@@ -91,12 +91,15 @@ body {
   display: block;
   margin-bottom: 10px;
 }
+
+/* Adjust image size for smaller screens */
 @media (max-width: 768px) {
   .species-image {
-    max-width: 768px;
+    max-width: 90vw; /* Set max-width relative to viewport width */
     max-height: auto;
   }
 }
+
 /* Light Theme */
 body.light-theme {
   background-color: #f0f0f0;
