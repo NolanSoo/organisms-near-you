@@ -76,18 +76,18 @@
       font-size: 18px;
     }
 
-    .Aplus { background-color: #18866b; color: white; }
+    .A+ { background-color: #18866b; color: white; }
     .A { background-color: #3bb545; color: white; }
-    .Aminus { background-color: #7adc39; color: white; }
-    .Bplus { background-color: #c4ff3b; color: black; }
+    .A- { background-color: #7adc39; color: white; }
+    .B+ { background-color: #c4ff3b; color: black; }
     .B { background-color: #e2ff05; color: black; }
-    .Bminus { background-color: #fff700; color: black; }
-    .Cplus { background-color: #ffc524; color: black; }
+    .B- { background-color: #fff700; color: black; }
+    .C+ { background-color: #ffc524; color: black; }
     .C { background-color: #f5b038; color: white; }
-    .Cminus { background-color: #e97d25; color: white; }
-    .Dplus { background-color: #ea3406; color: white; }
+    .C- { background-color: #e97d25; color: white; }
+    .D+ { background-color: #ea3406; color: white; }
     .D { background-color: #c62a2a; color: white; }
-    .Dminus { background-color: #b96a6a; color: white; }
+    .D- { background-color: #b96a6a; color: white; }
     .F { background-color: #8a6060; color: white; }
 
     .highlight {
@@ -200,18 +200,18 @@
   }
 
   function getGradeColor(score) {
-    if (score >= 95) return 'Aplus';
+    if (score >= 95) return 'A+';
     if (score >= 85) return 'A';
-    if (score >= 80) return 'Aminus';
-    if (score >= 75) return 'Bplus';
+    if (score >= 80) return 'A-';
+    if (score >= 75) return 'B+';
     if (score >= 70) return 'B';
-    if (score >= 65) return 'Bminus';
-    if (score >= 60) return 'Cplus';
+    if (score >= 65) return 'B-';
+    if (score >= 60) return 'C+';
     if (score >= 55) return 'C';
-    if (score >= 50) return 'Cminus';
-    if (score >= 45) return 'Dplus';
+    if (score >= 50) return 'C-';
+    if (score >= 45) return 'D+';
     if (score >= 40) return 'D';
-    if (score >= 35) return 'Dminus';
+    if (score >= 35) return 'D-';
     return 'F';
   }
   </script>
