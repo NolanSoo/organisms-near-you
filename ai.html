@@ -122,22 +122,17 @@
   </div>
 
    <script>
-  let image = document.getElementById('img1');
-  let input_button = document.getElementById('input_button');
-  let predictButton = document.getElementById('predictButton');
+    let image = document.getElementById('img1');
+    let input_button = document.getElementById('input_button');
+    let predictButton = document.getElementById('predictButton');
 
-  input_button.onchange = evt => {
-    const [file] = input_button.files;
-    if (file) {
-      image.src = URL.createObjectURL(file);
-
-      // Enable the button once the image is fully loaded
-      image.onload = () => {
+    input_button.onchange = evt => {
+      const [file] = input_button.files;
+      if (file) {
+        image.src = URL.createObjectURL(file);
         predictButton.disabled = false;
-      };
-    }
-  };
-
+      }
+    };
 
 
     async function predict() {
