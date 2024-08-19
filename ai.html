@@ -76,19 +76,19 @@
       font-size: 18px;
     }
 
-.Aplus { background-color: #18866b; color: white; }
-.A { background-color: #3bb545; color: white; }
-.Aminus { background-color: #7adc39; color: white; }
-.Bplus { background-color: #c4ff3b; color: black; }
-.B { background-color: #e2ff05; color: black; }
-.Bminus { background-color: #fff700; color: black; }
-.Cplus { background-color: #ffc524; color: black; }
-.C { background-color: #f5b038; color: white; }
-.Cminus { background-color: #e97d25; color: white; }
-.Dplus { background-color: #ea3406; color: white; }
-.D { background-color: #c62a2a; color: white; }
-.Dminus { background-color: #b96a6a; color: white; }
-.F { background-color: #8a6060; color: white; }
+    .Aplus { background-color: #18866b; color: white; }
+    .A { background-color: #3bb545; color: white; }
+    .Aminus { background-color: #7adc39; color: white; }
+    .Bplus { background-color: #c4ff3b; color: black; }
+    .B { background-color: #e2ff05; color: black; }
+    .Bminus { background-color: #fff700; color: black; }
+    .Cplus { background-color: #ffc524; color: black; }
+    .C { background-color: #f5b038; color: white; }
+    .Cminus { background-color: #e97d25; color: white; }
+    .Dplus { background-color: #ea3406; color: white; }
+    .D { background-color: #c62a2a; color: white; }
+    .Dminus { background-color: #b96a6a; color: white; }
+    .F { background-color: #8a6060; color: white; }
 
     .highlight {
       font-size: 24px;
@@ -141,79 +141,79 @@
     }
   };
 
-    async function predict() {
-      document.getElementById("result").innerHTML = "Predicting...";
-      document.getElementById("score").innerHTML = "";
-      document.getElementById("landUseScore").innerHTML = "";
-      document.getElementById("densityScore").innerHTML = "";
+  async function predict() {
+    document.getElementById("result").innerHTML = "Predicting...";
+    document.getElementById("score").innerHTML = "";
+    document.getElementById("landUseScore").innerHTML = "";
+    document.getElementById("densityScore").innerHTML = "";
 
-      // Disable button while prediction is in progress
-      predictButton.disabled = true;
+    // Disable button while prediction is in progress
+    predictButton.disabled = true;
 
-      try {
-        // Main Sustainability Model
-        const sustainabilityModel = await tf.loadGraphModel('./model.json');
-        let example = tf.browser.fromPixels(image).cast('float32');
-        example = example.reshape([1, example.shape[0], example.shape[1], example.shape[2]]);
+    try {
+      // Main Sustainability Model
+      const sustainabilityModel = await tf.loadGraphModel('./model.json');
+      let example = tf.browser.fromPixels(image).cast('float32');
+      example = example.reshape([1, example.shape[0], example.shape[1], example.shape[2]]);
 
-        let sustainabilityPrediction = await sustainabilityModel.predict(example);
-        let sustainabilityScores = await sustainabilityPrediction.data();
+      let sustainabilityPrediction = await sustainabilityModel.predict(example);
+      let sustainabilityScores = await sustainabilityPrediction.data();
 
-        let maxSustainabilityScoreId = sustainabilityScores.indexOf(Math.max(...sustainabilityScores));
-        let classes = ["Good", "Bad", "MID"];
-        let sustainabilityResult = classes[maxSustainabilityScoreId];
-        
-        // Calculate sustainability score
-        let strongPercent = sustainabilityScores[0] * 100;
-        let midPercent = sustainabilityScores[2] * 100;
-        let badPercent = sustainabilityScores[1] * 100;
-        let sustainabilityScore = (strongPercent * 1) + (midPercent * 0.45);
+      let maxSustainabilityScoreId = sustainabilityScores.indexOf(Math.max(...sustainabilityScores));
+      let classes = ["Good", "Bad", "MID"];
+      let sustainabilityResult = classes[maxSustainabilityScoreId];
+      
+      // Calculate sustainability score
+      let strongPercent = sustainabilityScores[0] * 100;
+      let midPercent = sustainabilityScores[2] * 100;
+      let badPercent = sustainabilityScores[1] * 100;
+      let sustainabilityScore = (strongPercent * 1) + (midPercent * 0.45);
 
-        document.getElementById("result").innerHTML = Sustainability: ${sustainabilityResult};
-        document.getElementById("score").innerHTML = Sustainability Score: ${sustainabilityScore.toFixed(2)} / 100;
-        document.getElementById("score").className = highlight ${getGradeColor(sustainabilityScore)};
+      document.getElementById("result").innerHTML = `Sustainability: ${sustainabilityResult}`;
+      document.getElementById("score").innerHTML = `Sustainability Score: ${sustainabilityScore.toFixed(2)} / 100`;
+      document.getElementById("score").className = `highlight ${getGradeColor(sustainabilityScore)}`;
 
-        // Land Use Model
-        const landUseModel = await tf.loadGraphModel('./model2.json');
-        let landUsePrediction = await landUseModel.predict(example);
-        let landUseScores = await landUsePrediction.data();
-        let landUseScore = (landUseScores[1] * 100) + (landUseScores[0] * 100 * 0.33);
+      // Land Use Model
+      const landUseModel = await tf.loadGraphModel('./model2.json');
+      let landUsePrediction = await landUseModel.predict(example);
+      let landUseScores = await landUsePrediction.data();
+      let landUseScore = (landUseScores[1] * 100) + (landUseScores[0] * 100 * 0.33);
 
-        document.getElementById("landUseScore").innerHTML = Land Use Score: ${getGradeColor(densityScore)} (${landUseScore.toFixed(2)} / 100;)
-        document.getElementById("landUseScore").className = score ${getGradeColor(landUseScore)};
+      document.getElementById("landUseScore").innerHTML = `Land Use Score: ${landUseScore.toFixed(2)} / 100 (${getGradeColor(landUseScore)})`;
+      document.getElementById("landUseScore").className = `score ${getGradeColor(landUseScore)}`;
 
-        // Density Model
-        const densityModel = await tf.loadGraphModel('./model3.json');
-        let densityPrediction = await densityModel.predict(example);
-        let densityScores = await densityPrediction.data();
-        let densityScore = (densityScores[1] * 100) + (densityScores[2] * 100 * 0.33);
+      // Density Model
+      const densityModel = await tf.loadGraphModel('./model3.json');
+      let densityPrediction = await densityModel.predict(example);
+      let densityScores = await densityPrediction.data();
+      let densityScore = (densityScores[1] * 100) + (densityScores[2] * 100 * 0.33);
 
-        document.getElementById("densityScore").innerHTML = Density Score: ${getGradeColor(densityScore)} (${densityScore.toFixed(2)} / 100;)
-        document.getElementById("densityScore").className = score ${getGradeColor(densityScore)};
-      } catch (error) {
-        document.getElementById("result").innerHTML = "Error in prediction.";
-        console.error("Prediction error:", error);
-      } finally {
-        // Re-enable the button after prediction
-        predictButton.disabled = false;
-      }
+      document.getElementById("densityScore").innerHTML = `Density Score: ${densityScore.toFixed(2)} / 100 (${getGradeColor(densityScore)})`;
+      document.getElementById("densityScore").className = `score ${getGradeColor(densityScore)}`;
+    } catch (error) {
+      document.getElementById("result").innerHTML = "Error in prediction.";
+      console.error("Prediction error:", error);
+    } finally {
+      // Re-enable the button after prediction
+      predictButton.disabled = false;
     }
+  }
 
-    function getGradeColor(score) {
-      if (score >= 95) return 'Aplus';
-      if (score >= 85) return 'A';
-      if (score >= 80) return 'Aminus';
-      if (score >= 75) return 'Bplus';
-      if (score >= 70) return 'B';
-      if (score >= 65) return 'Bminus';
-      if (score >= 60) return 'Cplus';
-      if (score >= 55) return 'C';
-      if (score >= 50) return 'Cminus';
-      if (score >= 45) return 'Dplus';
-      if (score >= 40) return 'D';
-      if (score >= 35) return 'Dminus';
-      return 'F';
-    }
+  function getGradeColor(score) {
+    if (score >= 95) return 'Aplus';
+    if (score >= 85) return 'A';
+    if (score >= 80) return 'Aminus';
+    if (score >= 75) return 'Bplus';
+    if (score >= 70) return 'B';
+    if (score >= 65) return 'Bminus';
+    if (score >= 60) return 'Cplus';
+    if (score >= 55) return 'C';
+    if (score >= 50) return 'Cminus';
+    if (score >= 45) return 'Dplus';
+    if (score >= 40) return 'D';
+    if (score >= 35) return 'Dminus';
+    return 'F';
+  }
   </script>
 </body>
 </html>
