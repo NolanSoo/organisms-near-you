@@ -134,6 +134,64 @@
       }
     };
 
+    async function predict() {
+      document.getElementById("result").innerHTML = "Predicting...";
+      document.getElementById("score").innerHTML = "";
+      document.getElementById("landUseScore").innerHTML = "";
+      document.getElementById("densityScore").innerHTML = "";
+
+      // Disable button while prediction is in progress
+      predictButton.disabled = true;
+
+      try {
+        // Main Sustainability Model
+        const sustainabilityModel = await tf.loadGraphModel('./model.json');
+        let example = tf.browser.fromPixels(image).cast('float32');
+        example = example.reshape([1, example.shape[0], example.shape[1], example.shape[2]]);
+
+        let sustainabilityPrediction = await sustainabilityModel.predict(example);
+        let sustainabilityScores = await sustainabilityPrediction.data();
+
+        let maxSustainabilityScoreId = sustainabilityScores.indexOf(Math.max(...sustainabilityScores));
+        let classes = ["Good", "Bad", "MID"];
+        let sustainabilityResult = classes[maxSustainabilityScoreId];
+        
+        // Calculate sustainability score
+        let strongPercent = sustainabilityScores[0] * 100;
+        let midPercent = sustainabilityScores[2] * 100;
+        let badPercent = sustainabilityScores[1] * 100;
+        let sustainabilityScore = (strongPercent * 1) + (midPercent * 0.45);
+
+        document.getElementById("result").innerHTML = `Sustainability: ${sustainabilityResult}`;
+        document.getElementById("score").innerHTML = `Sustainability Score: ${sustainabilityScore.toFixed(2)} / 100`;
+        document.getElementById("score").className = `highlight ${getGradeColor(sustainabilityScore)}`;
+
+        // Land Use Model
+        const landUseModel = await tf.loadGraphModel('./model2.json');
+        let landUsePrediction = await landUseModel.predict(example);
+        let landUseScores = await landUsePrediction.data();
+        let landUseScore = (landUseScores[0] * 100) + (landUseScores[2] * 100 * 0.33);
+
+        document.getElementById("landUseScore").innerHTML = `Land Use Score: ${landUseScore.toFixed(2)} / 100`;
+        document.getElementById("landUseScore").className = `score ${getGradeColor(landUseScore)}`;
+
+        // Density Model
+        const densityModel = await tf.loadGraphModel('./model3.json');
+        let densityPrediction = await densityModel.predict(example);
+        let densityScores = await densityPrediction.data();
+        let densityScore = (densityScores[1] * 100) + (densityScores[0] * 100 * 0.33);
+
+        document.getElementById("densityScore").innerHTML = `Density Score: ${densityScore.toFixed(2)} / 100`;
+        document.getElementById("densityScore").className = `score ${getGradeColor(densityScore)}`;
+      } catch (error) {
+        document.getElementById("result").innerHTML = "Error in prediction.";
+        console.error("Prediction error:", error);
+      } finally {
+        // Re-enable the button after prediction
+        predictButton.disabled = false;
+      }
+    }
+
     function getGradeColor(score) {
       if (score >= 95) return 'Aplus';
       if (score >= 85) return 'A';
@@ -149,56 +207,6 @@
       if (score >= 35) return 'Dminus';
       return 'F';
     }
-
-    async function predict() {
-      document.getElementById("result").innerHTML = "Predicting...";
-      document.getElementById("score").innerHTML = "";
-      document.getElementById("landUseScore").innerHTML = "";
-      document.getElementById("densityScore").innerHTML = "";
-
-      // Main Sustainability Model
-      const sustainabilityModel = await tf.loadGraphModel('./model.json');
-      let example = tf.browser.fromPixels(image).cast('float32');
-      example = example.reshape([1, example.shape[0], example.shape[1], example.shape[2]]);
-
-      let sustainabilityPrediction = await sustainabilityModel.predict(example);
-      let sustainabilityScores = await sustainabilityPrediction.data();
-
-      let maxSustainabilityScoreId = sustainabilityScores.indexOf(Math.max(...sustainabilityScores));
-      let classes = ["Good", "Bad", "MID"];
-      let sustainabilityResult = classes[maxSustainabilityScoreId];
-      
-      // Calculate sustainability score
-      let strongPercent = sustainabilityScores[0] * 100;
-      let midPercent = sustainabilityScores[2] * 100;
-      let badPercent = sustainabilityScores[1] * 100;
-      let sustainabilityScore = (strongPercent * 1) + (midPercent * 0.45);
-
-      document.getElementById("result").innerHTML = `Sustainability: ${sustainabilityResult}`;
-      document.getElementById("score").innerHTML = `Sustainability Score: ${sustainabilityScore.toFixed(2)} / 100`;
-      document.getElementById("score").className = `highlight ${getGradeColor(sustainabilityScore)}`;
-
-      // Land Use Model
-      const landUseModel = await tf.loadGraphModel('./model2.json');
-      let classes = ["Good_", "Bad_", "Mid_"];
-      let landUsePrediction = await landUseModel.predict(example);
-      let landUseScores = await landUsePrediction.data();
-      let landUseScore = (landUseScores[0] * 100) + (landUseScores[2] * 100 * 0.33);
-
-      document.getElementById("landUseScore").innerHTML = `Land Use Score: ${landUseScore.toFixed(2)} / 100`;
-      document.getElementById("landUseScore").className = `score ${getGradeColor(landUseScore)}`;
-
-      // Density Model
-      const densityModel = await tf.loadGraphModel('./model3.json');
-      let classes = ["Mid__", "Good__", "Bad__"];
-      let densityPrediction = await densityModel.predict(example);
-      let densityScores = await densityPrediction.data();
-      let densityScore = (densityScores[1] * 100) + (densityScores[0] * 100 * 0.33);
-
-      document.getElementById("densityScore").innerHTML = `Density Score: ${densityScore.toFixed(2)} / 100`;
-      document.getElementById("densityScore").className = `score ${getGradeColor(densityScore)}`;
-    }
   </script>
-  
 </body>
 </html>
