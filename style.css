@@ -16,26 +16,40 @@ body {
 
 .navbar {
     display: flex;
-    justify-content: space-around;
+    justify-content: space-between; /* Adjust spacing */
     align-items: center;
     background-color: #28a745;
-    padding: 15px 20px;
+    padding: 10px 15px; /* Less padding for mobile */
     position: sticky;
     top: 0;
     width: 100%;
-  }
+}
 
-  .navbar a {
+.navbar a {
     color: white;
     text-decoration: none;
     font-weight: 600;
-    font-size: 16px;
+    font-size: 4vw; /* Auto shrinking font based on screen size */
     transition: color 0.3s ease;
-  }
+}
 
-  .navbar a:hover {
+.navbar a:hover {
     color: #f0f0f0;
-  }
+}
+
+/* Responsive design for smaller screens */
+@media (max-width: 768px) {
+    .navbar {
+        flex-direction: column; /* Stack items vertically on smaller screens */
+        padding: 15px;
+    }
+
+    .navbar a {
+        font-size: 5vw; /* Adjust the font size for mobile */
+        margin-bottom: 10px; /* Add more spacing between links */
+    }
+}
+
 .navbar.dark-theme {
   background-color: #2e2e2e;
   color: white;
