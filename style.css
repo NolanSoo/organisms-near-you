@@ -13,6 +13,73 @@ body {
 #listContainer {
   margin-top: 20px;
 }
+.occurrence {
+  margin-bottom: 20px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-sizing: border-box;
+}
+.controls {
+  margin: 20px;
+  background-color: inherit;
+  padding: 10px;
+  border-radius: 5px;
+}
+.controls input,
+.controls button,
+.controls select {
+  margin-bottom: 10px;
+}
+.species-image {
+  width: 100%;
+  height: auto;
+  max-width: 600px;
+  max-height: 400px;
+  display: block;
+  margin-bottom: 10px;
+}
+@media (max-width: 768px) {
+  .species-image {
+    max-width: 100%;
+    max-height: auto;
+  }
+}
+/* Light Theme */
+body.light-theme {
+  background-color: #f0f0f0;
+  color: black;
+}
+/* Dark Theme */
+body.dark-theme {
+  background-color: #2e2e2e;
+  color: white;
+}
+/* Green Theme */
+body.green-theme {
+  background-color: #e6ffe6;
+  color: #003300;
+}
+/* Alternate Theme */
+body.alt-theme {
+  background-color: #e0004f;
+  color: #036063;
+}
+body.alt-theme2 {
+  background-color: #34344A;
+  color: #ffffff;
+}
+/* Two columns for computers */
+@media (min-width: 769px) {
+  #listContainer {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  .occurrence {
+    flex: 1 1 calc(50% - 2%);
+    margin: 1%;
+  }
+}
 
 .navbar {
     display: flex;
@@ -50,90 +117,4 @@ body {
 }
 
 
-.navbar.dark-theme {
-  background-color: #2e2e2e;
-  color: white;
-}
-.navbar.green-theme {
-  background-color: #e6ffe6;
-  color: #002300;
-}
-.navbar.alt-theme {
-  background-color: #85143c;
-  color: #ffffff;
-}
-.navbar.alt-theme2 {
-  background-color: #34344A;
-  color: #ffffff;
-.occurrence {
-  margin-bottom: 20px;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  box-sizing: border-box;
-}
-.controls {
-  margin: 20px;
-  background-color: inherit;
-  padding: 10px;
-  border-radius: 5px;
-}
-.controls input,
-.controls button,
-.controls select {
-  margin-bottom: 10px;
-}
-.species-image {
-  width: 100%;
-  height: auto;
-  max-width: 600px;
-  max-height: 400px;
-  display: block;
-  margin-bottom: 10px;
-}
 
-/* Adjust image size for smaller screens */
-@media (max-width: 768px) {
-  .species-image {
-    max-width: 90vw; /* Set max-width relative to viewport width */
-    max-height: auto;
-  }
-}
-
-/* Light Theme */
-body.light-theme {
-  background-color: #f0f0f0;
-  color: black;
-}
-/* Dark Theme */
-body.dark-theme {
-  background-color: #2e2e2e;
-  color: white;
-}
-/* Green Theme */
-body.green-theme {
-  background-color: #e6ffe6;
-  color: #003300;
-}
-/* Alternate Theme */
-body.alt-theme {
-  background-color: #e0004f;
-  color: #036063;
-}
-body.alt-theme2 {
-  background-color: #34344A;
-  color: #ffffff;
-}
-
-
-/* Two columns for computers */
-@media (min-width: 769px) {
-  #listContainer {
-    display: flex;
-    flex-wrap: wrap;
-  }
-  .occurrence {
-    flex: 1 1 calc(50% - 2%);
-    margin: 1%;
-  }
-}
