@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <title>Sustainability Predictor</title>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background-color: #f0f0f0;
+    }
+    #container {
+      text-align: center;
+      background-color: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 10px;
+    }
+    input, button {
+      margin-top: 15px;
+    }
+    button {
+      background-color: #28a745;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-family: 'Poppins', sans-serif;
+    }
+    button:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="container">
+    <h1>Sustainability Predictor</h1>
+
+    <input accept="image/*" type="file" id="input_button" />
+    <br>
+    <img id="img1" src="./image.jpg" style="width: 300px;" alt="Upload Image"/>
+    <br><br>
+    <button onclick="predict()" id="predictButton" disabled>Predict</button>
+    <br><br>
+    <p id="result">Result will appear here...</p>
+    <p id="score"></p>
+  </div>
+
+  <script>
+    let image = document.getElementById('img1');
+    let input_button = document.getElementById('input_button');
+    let predictButton = document.getElementById('predictButton');
+
+    input_button.onchange = evt => {
+      const [file] = input_button.files;
+      if (file) {
+        image.src = URL.createObjectURL(file);
+        predictButton.disabled = false;
+      }
+    };
+
+    async function predict() {
+      document.getElementById("result").innerHTML = "Predicting...";
+      document.getElementById("score").innerHTML = "";
+
+      const model = await tf.loadGraphModel('./model.json');
+
+      let example = tf.browser.fromPixels(image).cast('float32');
+      example = example.reshape([1, example.shape[0], example.shape[1], example.shape[2]]);
+
+      let prediction = await model.predict(example);
+      let class_scores = await prediction.data();
+
+      let max_score_id = class_scores.indexOf(Math.max(...class_scores));
+      let classes = ["Good", "Bad", "MID"];
+      let result = classes[max_score_id];
+      
+      // Calculate sustainability score
+      let strongPercent = class_scores[0] * 100;
+      let midPercent = class_scores[2] * 100;
+      let badPercent = class_scores[1] * 100;
+      let sustainabilityScore = (strongPercent * 1) + (midPercent * 0.45) + (badPercent * 0);
+
+      document.getElementById("result").innerHTML = `Classification: ${result}`;
+      document.getElementById("score").innerHTML = `Sustainability Score: ${sustainabilityScore.toFixed(2)} / 100`;
+    }
+  </script>
+  
+</body>
+</html>
