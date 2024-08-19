@@ -84,7 +84,7 @@ body {
   margin-bottom: 10px;
 }
 .species-image {
-  width: 100%;
+  width: 100vw;
   height: auto;
   max-width: 600px;
   max-height: 400px;
