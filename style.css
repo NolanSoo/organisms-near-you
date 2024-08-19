@@ -41,11 +41,11 @@ body {
 @media (max-width: 768px) {
     .navbar {
         padding: 10px 12px; /* Adjust the left and right padding for mobile */
-        font-size: 12.8px; /* Reduce font size by 20% on mobile (16px * 0.8 = 12.8px) */
+        font-size: 14.8px; /* Reduce font size by 20% on mobile (16px * 0.8 = 12.8px) */
     }
     
     .navbar a {
-        font-size: 12.8px; /* Apply the 20% smaller font size to navbar links */
+        font-size: 14.8px; /* Apply the 20% smaller font size to navbar links */
     }
 }
 
