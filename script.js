@@ -474,11 +474,9 @@ function updateMap() {
   fetchResults(userLat, userLon);
 }
 
-// Change the theme of the application
 function changeTheme() {
   const body = document.body;
   body.classList.remove(themes[currentThemeIndex]);
   currentThemeIndex = (currentThemeIndex + 1) % themes.length;
-  body.classList.add(themes[currentThemeIndex]); 
+  body.classList.add(themes[currentThemeIndex]);
 }
-
