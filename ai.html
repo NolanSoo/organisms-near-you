@@ -168,18 +168,20 @@
 
         // Land Use Model
         const landUseModel = await tf.loadGraphModel('./model2.json');
+        let classes = ["Mid", "Good", "Bad"];
         let landUsePrediction = await landUseModel.predict(example);
         let landUseScores = await landUsePrediction.data();
-        let landUseScore = (landUseScores[0] * 100) + (landUseScores[2] * 100 * 0.33);
+        let landUseScore = (landUseScores[1] * 100) + (landUseScores[0] * 100 * 0.33);
 
         document.getElementById("landUseScore").innerHTML = `Land Use Score: ${landUseScore.toFixed(2)} / 100`;
         document.getElementById("landUseScore").className = `score ${getGradeColor(landUseScore)}`;
 
         // Density Model
         const densityModel = await tf.loadGraphModel('./model3.json');
+        let classes = ["Bad", "Good", "Mid"];
         let densityPrediction = await densityModel.predict(example);
         let densityScores = await densityPrediction.data();
-        let densityScore = (densityScores[1] * 100) + (densityScores[0] * 100 * 0.33);
+        let densityScore = (densityScores[1] * 100) + (densityScores[2] * 100 * 0.33);
 
         document.getElementById("densityScore").innerHTML = `Density Score: ${densityScore.toFixed(2)} / 100`;
         document.getElementById("densityScore").className = `score ${getGradeColor(densityScore)}`;
