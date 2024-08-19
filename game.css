@@ -3,6 +3,28 @@ html, body {
   margin: 0;
   font-family: 'Poppins', sans-serif;
 }
+.navbar {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    background-color: #28a745;
+    padding: 15px 20px;
+    position: sticky;
+    top: 0;
+    width: 100%;
+  }
+
+  .navbar a {
+    color: white;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 16px;
+    transition: color 0.3s ease;
+  }
+
+  .navbar a:hover {
+    color: #f0f0f0;
+  }
 /* Add this CSS inside your <style> tags or an external stylesheet */
 #loadingScreen {
     display: none; /* Initially hidden */
