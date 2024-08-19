@@ -83,27 +83,26 @@ body.alt-theme2 {
 
 .navbar {
     display: flex;
-    justify-content: space-between;
+    justify-content: space-around;
     align-items: center;
     background-color: #28a745;
-    padding: 10px 15px;
+    padding: 15px 20px;
     position: sticky;
     top: 0;
     width: 100%;
-    font-size: 16px; /* Default font size for larger screens */
-}
+  }
 
-.navbar a {
+  .navbar a {
     color: white;
     text-decoration: none;
     font-weight: 600;
+    font-size: 16px;
     transition: color 0.3s ease;
-}
+  }
 
-.navbar a:hover {
+  .navbar a:hover {
     color: #f0f0f0;
-}
-
+  }
 /* Responsive design for smaller screens */
 @media (max-width: 768px) {
     .navbar {
