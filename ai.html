@@ -47,65 +47,78 @@
       cursor: not-allowed;
     }
     .navbar {
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    background-color: #28a745;
-    padding: 15px 20px;
-    position: sticky;
-    top: 0;
-    width: 100%;
-  }
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      background-color: #28a745;
+      padding: 15px 20px;
+      position: sticky;
+      top: 0;
+      width: 100%;
+    }
 
-  .navbar a {
-    color: white;
-    text-decoration: none;
-    font-weight: 600;
-    font-size: 16px;
-    transition: color 0.3s ease;
-  }
+    .navbar a {
+      color: white;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 16px;
+      transition: color 0.3s ease;
+    }
 
-  .navbar a:hover {
-    color: #f0f0f0;
-  }
-    navbar.dark-theme {
-  background-color: #2e2e2e;
-  color: white;
-}
-navbar.green-theme {
-  background-color: #e6ffe6;
-  color: #002300;
-}
-navbar.alt-theme {
-  background-color: #85143c;
-  color: #ffffff;
-}
-navbar.alt-theme2 {
-  background-color: #34344A;
-  color: #ffffff;
-}
+    .navbar a:hover {
+      color: #f0f0f0;
+    }
+
+    .score {
+      margin-top: 10px;
+      padding: 5px 10px;
+      font-weight: bold;
+      font-size: 18px;
+    }
+
+    .Aplus { background-color: #4CAF50; color: white; }
+    .A { background-color: #8BC34A; color: white; }
+    .Aminus { background-color: #CDDC39; color: black; }
+    .Bplus { background-color: #FFEB3B; color: black; }
+    .B { background-color: #FFC107; color: black; }
+    .Bminus { background-color: #FF9800; color: white; }
+    .Cplus { background-color: #FF5722; color: white; }
+    .C { background-color: #F44336; color: white; }
+    .Cminus { background-color: #E91E63; color: white; }
+    .Dplus { background-color: #9C27B0; color: white; }
+    .D { background-color: #673AB7; color: white; }
+    .Dminus { background-color: #3F51B5; color: white; }
+    .F { background-color: #607D8B; color: white; }
+
+    .highlight {
+      font-size: 24px;
+      font-weight: 600;
+      margin-top: 15px;
+    }
   </style>
 </head>
 <body>
 
   <div id="container">
     <h1>Sustainability Predictor</h1>
-      <h3>1) Screenshot any region of satellite imagery from <a href="https://browser.dataspace.copernicus.eu/">this site</a> (this AI was mainly trained on US data).</h3>
-  <br>
-  <h3>2) See data on the overall sustainability score and various subscores.</h3>
-<nav class="navbar">
-  <a href="index.html">Organisms Near You</a>
-  <a href="ai.html">Sustainability AI</a>
-  <a href="game.html">Explore Our World</a>
-</nav>
+    <h3>1) Screenshot any region of satellite imagery from <a href="https://browser.dataspace.copernicus.eu/">this site</a> (this AI was mainly trained on US data).</h3>
+    <br>
+    <h3>2) See data on the overall sustainability score and various subscores.</h3>
+    <nav class="navbar">
+      <a href="index.html">Organisms Near You</a>
+      <a href="ai.html">Sustainability AI</a>
+      <a href="game.html">Explore Our World</a>
+    </nav>
     <input accept="image/*" type="file" id="input_button" />
     <br>
     <img id="img1" src="./image.jpg" style="width: 300px;" alt="Upload Image"/>
     <br><br>
     <button onclick="predict()" id="predictButton" disabled>Predict</button>
     <br><br>
-    <p id="result">Result will appear here...</p>
-    <p id="score"></p>
+    <p id="result" class="highlight">Sustainability Score will appear here...</p>
+    <p id="score" class="highlight"></p>
+    <p id="landUseScore"></p>
+    <p id="densityScore"></p>
   </div>
 
   <script>
@@ -121,30 +134,67 @@ navbar.alt-theme2 {
       }
     };
 
+    function getGradeColor(score) {
+      if (score >= 95) return 'Aplus';
+      if (score >= 85) return 'A';
+      if (score >= 80) return 'Aminus';
+      if (score >= 75) return 'Bplus';
+      if (score >= 70) return 'B';
+      if (score >= 65) return 'Bminus';
+      if (score >= 60) return 'Cplus';
+      if (score >= 55) return 'C';
+      if (score >= 50) return 'Cminus';
+      if (score >= 45) return 'Dplus';
+      if (score >= 40) return 'D';
+      if (score >= 35) return 'Dminus';
+      return 'F';
+    }
+
     async function predict() {
       document.getElementById("result").innerHTML = "Predicting...";
       document.getElementById("score").innerHTML = "";
+      document.getElementById("landUseScore").innerHTML = "";
+      document.getElementById("densityScore").innerHTML = "";
 
-      const model = await tf.loadGraphModel('./model.json');
-
+      // Main Sustainability Model
+      const sustainabilityModel = await tf.loadGraphModel('./model.json');
       let example = tf.browser.fromPixels(image).cast('float32');
       example = example.reshape([1, example.shape[0], example.shape[1], example.shape[2]]);
 
-      let prediction = await model.predict(example);
-      let class_scores = await prediction.data();
+      let sustainabilityPrediction = await sustainabilityModel.predict(example);
+      let sustainabilityScores = await sustainabilityPrediction.data();
 
-      let max_score_id = class_scores.indexOf(Math.max(...class_scores));
+      let maxSustainabilityScoreId = sustainabilityScores.indexOf(Math.max(...sustainabilityScores));
       let classes = ["Good", "Bad", "MID"];
-      let result = classes[max_score_id];
+      let sustainabilityResult = classes[maxSustainabilityScoreId];
       
       // Calculate sustainability score
-      let strongPercent = class_scores[0] * 100;
-      let midPercent = class_scores[2] * 100;
-      let badPercent = class_scores[1] * 100;
-      let sustainabilityScore = (strongPercent * 1) + (midPercent * 0.45) + (badPercent * 0);
+      let strongPercent = sustainabilityScores[0] * 100;
+      let midPercent = sustainabilityScores[2] * 100;
+      let badPercent = sustainabilityScores[1] * 100;
+      let sustainabilityScore = (strongPercent * 1) + (midPercent * 0.45);
 
-      document.getElementById("result").innerHTML = `Classification: ${result}`;
+      document.getElementById("result").innerHTML = `Sustainability: ${sustainabilityResult}`;
       document.getElementById("score").innerHTML = `Sustainability Score: ${sustainabilityScore.toFixed(2)} / 100`;
+      document.getElementById("score").className = `highlight ${getGradeColor(sustainabilityScore)}`;
+
+      // Land Use Model
+      const landUseModel = await tf.loadGraphModel('./model2.json');
+      let landUsePrediction = await landUseModel.predict(example);
+      let landUseScores = await landUsePrediction.data();
+      let landUseScore = (landUseScores[0] * 100) + (landUseScores[2] * 100 * 0.33);
+
+      document.getElementById("landUseScore").innerHTML = `Land Use Score: ${landUseScore.toFixed(2)} / 100`;
+      document.getElementById("landUseScore").className = `score ${getGradeColor(landUseScore)}`;
+
+      // Density Model
+      const densityModel = await tf.loadGraphModel('./model3.json');
+      let densityPrediction = await densityModel.predict(example);
+      let densityScores = await densityPrediction.data();
+      let densityScore = (densityScores[0] * 100) + (densityScores[2] * 100 * 0.33);
+
+      document.getElementById("densityScore").innerHTML = `Density Score: ${densityScore.toFixed(2)} / 100`;
+      document.getElementById("densityScore").className = `score ${getGradeColor(densityScore)}`;
     }
   </script>
   
