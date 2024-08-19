@@ -46,13 +46,39 @@
       background-color: #ccc;
       cursor: not-allowed;
     }
+    .navbar {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    background-color: #28a745;
+    padding: 15px 20px;
+    position: sticky;
+    top: 0;
+    width: 100%;
+  }
+
+  .navbar a {
+    color: white;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 16px;
+    transition: color 0.3s ease;
+  }
+
+  .navbar a:hover {
+    color: #f0f0f0;
+  }
   </style>
 </head>
 <body>
 
   <div id="container">
     <h1>Sustainability Predictor</h1>
-
+<nav class="navbar">
+  <a href="index.html">Organisms Near You</a>
+  <a href="ai.html">Sustainability AI</a>
+  <a href="explore.html">Explore Our World</a>
+</nav>
     <input accept="image/*" type="file" id="input_button" />
     <br>
     <img id="img1" src="./image.jpg" style="width: 300px;" alt="Upload Image"/>
