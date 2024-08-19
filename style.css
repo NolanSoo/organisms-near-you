@@ -84,7 +84,7 @@ body {
   margin-bottom: 10px;
 }
 .species-image {
-  width: 100vw;
+  width: 100%;
   height: auto;
   max-width: 600px;
   max-height: 400px;
@@ -93,7 +93,7 @@ body {
 }
 @media (max-width: 768px) {
   .species-image {
-    max-width: 100%;
+    max-width: 768px;
     max-height: auto;
   }
 }
