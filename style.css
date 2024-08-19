@@ -13,21 +13,7 @@ body {
 #listContainer {
   margin-top: 20px;
 }
-.navbar.dark-theme {
-  background-color: #2e2e2e;
-  color: white;
-}
-.navbar.green-theme {
-  background-color: #e6ffe6;
-  color: #002300;
-}
-.navbar.alt-theme {
-  background-color: #85143c;
-  color: #ffffff;
-}
-.navbar.alt-theme2 {
-  background-color: #34344A;
-  color: #ffffff;
+
 .navbar {
     display: flex;
     justify-content: space-around;
@@ -50,6 +36,21 @@ body {
   .navbar a:hover {
     color: #f0f0f0;
   }
+.navbar.dark-theme {
+  background-color: #2e2e2e;
+  color: white;
+}
+.navbar.green-theme {
+  background-color: #e6ffe6;
+  color: #002300;
+}
+.navbar.alt-theme {
+  background-color: #85143c;
+  color: #ffffff;
+}
+.navbar.alt-theme2 {
+  background-color: #34344A;
+  color: #ffffff;
 .occurrence {
   margin-bottom: 20px;
   padding: 10px;
