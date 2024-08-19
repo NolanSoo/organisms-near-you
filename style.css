@@ -91,6 +91,23 @@ body.alt-theme2 {
   background-color: #34344A;
   color: #ffffff;
 }
+navbar.dark-theme {
+  background-color: #2e2e2e;
+  color: white;
+}
+navbar.green-theme {
+  background-color: #e6ffe6;
+  color: #002300;
+}
+navbar.alt-theme {
+  background-color: #85143c;
+  color: #ffffff;
+}
+navbar.alt-theme2 {
+  background-color: #34344A;
+  color: #ffffff;
+}
+
 /* Two columns for computers */
 @media (min-width: 769px) {
   #listContainer {
