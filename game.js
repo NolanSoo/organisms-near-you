@@ -211,6 +211,7 @@ function handleMapClick(e) {
 
 
 
+
 function calculateScore(distance, isEuropeMode, isUSACanadaMode) {
   let maxDistanceForPoints;
   let scoreCoefficient;
