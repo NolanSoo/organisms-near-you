@@ -64,8 +64,16 @@ function startNewRound(score) {
   console.log(`Starting round ${currentRound + 1}`);
   currentRound++;
   toggleLoadingScreen(true, score); // Show loading screen while searching for a location
+
+  // Clear any remaining lines
+  if (line) {
+    map.removeLayer(line);
+    line = null; // Reset line variable
+  }
+
   findLocationWithPicture();
 }
+
 
 function findLocationWithPicture() {
   let latitudeRange, longitudeRange;
@@ -135,6 +143,8 @@ function displayImage(imageUrl) {
   imageContainer.style.display = 'block';
 }
 
+let line; // Declare line variable globally to manage it easily
+
 function handleMapClick(e) {
   if (!gameInProgress || !correctLocation) {
     console.log("Game not in progress or no correct location.");
@@ -158,16 +168,37 @@ function handleMapClick(e) {
 
   userLocationMarker = L.marker(userLatLng, { color: 'blue' }).addTo(map);
 
-  L.popup()
+  // Show correct location and distance popups
+  const userPopup = L.popup()
     .setLatLng(userLatLng)
     .setContent(`You were ${Math.round(distance)} km away. Score: ${Math.round(score)}`)
     .openOn(map);
 
-  // Show correct location only when user clicks
-  L.popup()
+  const correctPopup = L.popup()
     .setLatLng([correctLocation.lat, correctLocation.lon])
     .setContent(`Correct location: ${correctLocation.lat.toFixed(2)}, ${correctLocation.lon.toFixed(2)}`)
     .openOn(map);
+
+  // Draw a line between guessed and correct location
+  if (line) {
+    map.removeLayer(line); // Remove previous line if it exists
+  }
+  const pointA = L.latLng(userLatLng.lat, userLatLng.lng);
+  const pointB = L.latLng(correctLocation.lat, correctLocation.lon);
+  const pointList = [pointA, pointB];
+
+  line = L.polyline(pointList, {
+    color: 'black',
+    weight: 3,
+    opacity: 0.9,
+    smoothFactor: 1
+  }).addTo(map);
+
+  // Automatically hide popups after 5 seconds (5000 milliseconds)
+  setTimeout(() => {
+    map.closePopup(userPopup);
+    map.closePopup(correctPopup);
+  }, 5000);
 
   updateScoreDisplay();
 
@@ -177,6 +208,7 @@ function handleMapClick(e) {
     startNewRound(score);
   }
 }
+
 
 function calculateScore(distance, isEuropeMode, isUSACanadaMode) {
   let maxDistanceForPoints;
@@ -215,6 +247,18 @@ function endGame() {
   }
   updateScoreDisplay();
   alert(`Game Over! Your session score: ${Math.round(sessionScore)}. Click "Start New Game" to play again.`);
+
+  // Clear any remaining lines
+  if (line) {
+    map.removeLayer(line);
+    line = null; // Reset line variable
+  }
+
+  // Optionally, remove user location marker
+  if (userLocationMarker) {
+    map.removeLayer(userLocationMarker);
+    userLocationMarker = null; // Reset marker variable
+  }
 }
 
 function toggleLoadingScreen(show, score = null) {
