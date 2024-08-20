@@ -168,7 +168,7 @@ function handleMapClick(e) {
 
   userLocationMarker = L.marker(userLatLng, { color: 'blue' }).addTo(map);
 
-  // Show correct location and distance popups
+  // Create and open popups for user guess and correct location
   const userPopup = L.popup()
     .setLatLng(userLatLng)
     .setContent(`You were ${Math.round(distance)} km away. Score: ${Math.round(score)}`)
@@ -176,7 +176,7 @@ function handleMapClick(e) {
 
   const correctPopup = L.popup()
     .setLatLng([correctLocation.lat, correctLocation.lon])
-    .setContent(`Correct location: ${correctLocation.lat.toFixed(2)}, ${correctLocation.lon.toFixed(2)}`)
+    .setContent(`Correct location: ${correctLocation.lat.toFixed(2)}, ${correctLocation.lon.toFixed(2)}<br>Distance: ${Math.round(distance)} km`)
     .openOn(map);
 
   // Draw a line between guessed and correct location
@@ -208,6 +208,7 @@ function handleMapClick(e) {
     startNewRound(score);
   }
 }
+
 
 
 function calculateScore(distance, isEuropeMode, isUSACanadaMode) {
